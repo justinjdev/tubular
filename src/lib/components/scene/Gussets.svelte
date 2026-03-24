@@ -55,18 +55,28 @@
 			const legZ = c.sZ * halfW;
 
 			// X-face gusset (visible from front or back)
+			// Plate flush with outer Z edge of leg
 			if (cfg.gussets[c.xFace]) {
 				const jx = legX + c.inX * legW / 2;
 				const rotYx = c.inX === -1 ? Math.PI : 0;
-				const zPos = c.inX === -1 ? legZ + gt / 2 : legZ - gt / 2;
+				// Outer Z edge: legZ + sZ * legH/2, plate extends inward by gt
+				// After rotation π: extrusion goes -Z, so position at outer edge
+				// After rotation 0: extrusion goes +Z, so position at outer edge - gt
+				const outerZ = legZ + c.sZ * legH / 2;
+				const zPos = c.inX === -1 ? outerZ : outerZ - gt;
 				result.push({ position: [jx, y, zPos], rotation: [0, rotYx, 0] });
 			}
 
 			// Z-face gusset (visible from left or right)
+			// Plate flush with outer X edge of leg
 			if (cfg.gussets[c.zFace]) {
 				const jz = legZ + c.inZ * legH / 2;
 				const rotYz = c.inZ === -1 ? Math.PI / 2 : -Math.PI / 2;
-				const xPos = c.inZ === -1 ? legX - gt / 2 : legX + gt / 2;
+				// Outer X edge: legX + sX * legW/2, plate extends inward by gt
+				// After rotation π/2: extrusion goes +X, so position at outer edge - gt
+				// After rotation -π/2: extrusion goes -X, so position at outer edge
+				const outerX = legX + c.sX * legW / 2;
+				const xPos = c.inZ === -1 ? outerX - gt : outerX;
 				result.push({ position: [xPos, y, jz], rotation: [0, rotYz, 0] });
 			}
 		}
