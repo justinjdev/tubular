@@ -20,6 +20,8 @@ export interface TableConfig {
 	bracing: Record<Side, BraceType>;
 	braceBottom: number;
 	braceSpan: number;
+	centerSupports: number;
+	footAllowance: number;
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -41,6 +43,8 @@ export const DEFAULT_CONFIG: TableConfig = {
 	bracing: { front: 'none', back: 'none', left: 'none', right: 'none' },
 	braceBottom: 0,
 	braceSpan: 8,
+	centerSupports: 0,
+	footAllowance: 0,
 	shelfFrame: false,
 	metric: false
 };
@@ -109,6 +113,14 @@ function createTableStore() {
 		updateBraceSpan(value: number) {
 			const maxSpan = config.height - config.braceBottom - 1;
 			set({ braceSpan: Math.max(1, Math.min(maxSpan, value)) });
+		},
+
+		updateFootAllowance(value: number) {
+			set({ footAllowance: Math.max(0, value) });
+		},
+
+		updateCenterSupports(value: number) {
+			set({ centerSupports: Math.max(0, Math.round(value)) });
 		},
 
 		toggleShelfFrame() {

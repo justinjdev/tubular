@@ -15,8 +15,9 @@
 
 	// Stock length selection per profile key
 	let stockLengths = $state<Record<string, number>>({});
+	let kerf = $state(0.125);
 
-	const nesting = $derived(computeNesting(items, stockLengths));
+	const nesting = $derived(computeNesting(items, stockLengths, kerf));
 
 	function handleStockLength(key: string, e: Event) {
 		const val = parseInt((e.target as HTMLSelectElement).value);
@@ -26,6 +27,19 @@
 
 <section class="flex flex-col gap-3">
 	<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Stock Nesting</h3>
+
+	<div class="flex items-center gap-2 text-xs text-neutral-400">
+		<label for="kerf-input">Kerf (blade width):</label>
+		<input
+			id="kerf-input"
+			type="number"
+			min="0"
+			step="0.0625"
+			class="w-20 rounded bg-neutral-700 px-2 py-1 text-xs text-white outline-none ring-1 ring-neutral-600 focus:ring-amber-500"
+			bind:value={kerf}
+		/>
+		<span>{m ? `${(kerf * 25.4).toFixed(1)} mm` : `${kerf}" in`}</span>
+	</div>
 
 	{#each nesting.profiles as profile}
 		{@const key = `${profile.stockType}-${profile.width}-${profile.height}-${profile.thickness}`}

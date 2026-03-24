@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tableStore, type BraceType, type Side } from '$lib/stores/table.svelte';
 	import { inToDisplay, lengthUnit } from '$lib/utils/units';
+	import { toFraction } from '$lib/utils/fractions';
 
 	const config = $derived(tableStore.config);
 
@@ -95,22 +96,16 @@
 		</span>
 	</div>
 
-	<!-- Shelf frame toggle -->
-	<label class="flex items-center gap-2 cursor-pointer">
-		<input
-			type="checkbox"
-			class="h-4 w-4 rounded border-neutral-600 bg-neutral-800 accent-amber-500"
-			checked={config.shelfFrame}
-			onchange={() => tableStore.toggleShelfFrame()}
-		/>
-		<span class="text-sm text-neutral-300">Shelf frame</span>
-	</label>
-
 	<!-- Brace bottom (off floor) -->
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
 			<label for="brace-bottom" class="text-xs text-neutral-500">Brace Bottom</label>
-			<span class="text-xs text-neutral-400">{inToDisplay(config.braceBottom, config.metric)} {lengthUnit(config.metric)}</span>
+			<span class="text-xs text-neutral-400">
+				{inToDisplay(config.braceBottom, config.metric)} {lengthUnit(config.metric)}
+				{#if !config.metric}
+					<span class="text-neutral-500">({toFraction(config.braceBottom)}")</span>
+				{/if}
+			</span>
 		</div>
 		<input
 			id="brace-bottom"
@@ -128,7 +123,12 @@
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
 			<label for="brace-span" class="text-xs text-neutral-500">Brace Height</label>
-			<span class="text-xs text-neutral-400">{inToDisplay(config.braceSpan, config.metric)} {lengthUnit(config.metric)}</span>
+			<span class="text-xs text-neutral-400">
+				{inToDisplay(config.braceSpan, config.metric)} {lengthUnit(config.metric)}
+				{#if !config.metric}
+					<span class="text-neutral-500">({toFraction(config.braceSpan)}")</span>
+				{/if}
+			</span>
 		</div>
 		<input
 			id="brace-span"

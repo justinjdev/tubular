@@ -2,7 +2,7 @@ import type { TableConfig, Side, TubeProfile } from '$lib/stores/table.svelte';
 import type { StockType } from '$lib/data/tubing-presets';
 
 export interface CutListItem {
-	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Shelf Frame';
+	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Center Support' | 'Shelf Frame';
 	description: string;
 	tubeLabel: string;
 	stockType: StockType;
@@ -33,7 +33,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: legTube.width,
 		height: legTube.height,
 		thickness: legTube.thickness,
-		length: config.height - frameTube.height,
+		length: config.height - frameTube.height - config.footAllowance,
 		quantity: 4
 	});
 
@@ -104,6 +104,21 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 				quantity: 2
 			});
 		}
+	}
+
+	// Center Supports
+	if (config.centerSupports > 0) {
+		items.push({
+			group: 'Center Support',
+			description: 'Cross Member',
+			tubeLabel: stockLabel(frameTube),
+			stockType: frameTube.stockType,
+			width: frameTube.width,
+			height: frameTube.height,
+			thickness: frameTube.thickness,
+			length: config.width - legTube.width * 2,
+			quantity: config.centerSupports
+		});
 	}
 
 	// Shelf Frame

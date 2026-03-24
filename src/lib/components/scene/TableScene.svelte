@@ -5,6 +5,7 @@
 	import Legs from './Legs.svelte';
 	import TopFrame from './TopFrame.svelte';
 	import Bracing from './Bracing.svelte';
+	import CenterSupports from './CenterSupports.svelte';
 	import DimensionLabels from './DimensionLabels.svelte';
 
 	const cfg = $derived(tableStore.config);
@@ -27,5 +28,6 @@
 	<Legs />
 	<TopFrame />
 	<Bracing />
+	<CenterSupports />
 	<DimensionLabels />
 </Canvas>

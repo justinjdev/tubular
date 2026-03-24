@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tableStore } from '$lib/stores/table.svelte';
+	import { toFraction } from '$lib/utils/fractions';
 
 	const config = $derived(tableStore.config);
 
@@ -33,19 +34,7 @@
 </script>
 
 <section class="flex flex-col gap-4">
-	<div class="flex items-center justify-between">
-		<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Dimensions</h3>
-		<button
-			class="flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors {config.metric
-				? 'bg-amber-500/20 text-amber-400'
-				: 'bg-neutral-800 text-neutral-400 hover:text-neutral-300'}"
-			onclick={() => tableStore.toggleMetric()}
-		>
-			<span class={config.metric ? 'opacity-50' : 'opacity-100'}>in</span>
-			<span class="text-neutral-600">/</span>
-			<span class={config.metric ? 'opacity-100' : 'opacity-50'}>mm</span>
-		</button>
-	</div>
+	<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Dimensions</h3>
 
 	{#each dims as dim}
 		<div class="flex flex-col gap-1.5">
@@ -68,6 +57,9 @@
 					<span class="text-xs text-neutral-500">{config.metric ? 'mm' : 'in'}</span>
 				</div>
 			</div>
+			{#if !config.metric}
+				<span class="text-[10px] text-neutral-500">{toFraction(config[dim.key])}"</span>
+			{/if}
 			<input
 				type="range"
 				class="accent-amber-500"

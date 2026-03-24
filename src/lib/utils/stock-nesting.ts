@@ -43,10 +43,12 @@ export interface NestingResult {
  * First-fit-decreasing bin packing.
  * Expands each CutListItem by quantity, sorts longest first,
  * then assigns each piece to the first stick that fits.
+ * Kerf is added after each piece to account for saw blade width.
  */
 function nestProfile(
 	pieces: CutPiece[],
-	stockLength: number
+	stockLength: number,
+	kerf: number
 ): StockStick[] {
 	// Sort longest first for better packing
 	const sorted = [...pieces].sort((a, b) => b.length - a.length);
@@ -63,13 +65,13 @@ function nestProfile(
 			continue;
 		}
 
-		// Find first stick with enough remaining space
+		// Find first stick with enough remaining space (piece + kerf for the cut)
 		let placed = false;
 		for (const stick of sticks) {
 			const remaining = stockLength - stick.used;
-			if (remaining >= piece.length) {
+			if (remaining >= piece.length + kerf) {
 				stick.pieces.push(piece);
-				stick.used += piece.length;
+				stick.used += piece.length + kerf;
 				stick.waste = stockLength - stick.used;
 				placed = true;
 				break;
@@ -79,8 +81,8 @@ function nestProfile(
 		if (!placed) {
 			sticks.push({
 				pieces: [piece],
-				used: piece.length,
-				waste: stockLength - piece.length
+				used: piece.length + kerf,
+				waste: stockLength - piece.length - kerf
 			});
 		}
 	}
@@ -93,7 +95,8 @@ function nestProfile(
  */
 export function computeNesting(
 	items: CutListItem[],
-	stockLengths: Record<string, number> // keyed by profile key (w-h-t-type)
+	stockLengths: Record<string, number>, // keyed by profile key (w-h-t-type)
+	kerf: number = 0.125 // saw blade width in inches
 ): NestingResult {
 	// Group items by profile
 	const grouped = new Map<string, { items: CutListItem[]; key: string }>();
@@ -120,7 +123,7 @@ export function computeNesting(
 			}
 		}
 
-		const sticks = nestProfile(pieces, stockLength);
+		const sticks = nestProfile(pieces, stockLength, kerf);
 		const totalUsed = sticks.reduce((sum, s) => sum + s.used, 0);
 		const totalStock = sticks.length * stockLength;
 		const totalWaste = totalStock - totalUsed;
