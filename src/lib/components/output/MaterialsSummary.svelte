@@ -2,6 +2,7 @@
 	import { tableStore } from '$lib/stores/table.svelte';
 	import { computeCutList } from '$lib/utils/cut-list';
 	import { computeMaterials } from '$lib/utils/materials';
+	import { ftToDisplay, lengthLongUnit, lbToDisplay, weightUnit } from '$lib/utils/units';
 
 	const config = $derived(tableStore.config);
 	const items = $derived(computeCutList(config));
@@ -21,6 +22,8 @@
 			costPerFoot = { ...costPerFoot, [label]: v };
 		}
 	}
+
+	const m = $derived(config.metric);
 </script>
 
 <section class="flex flex-col gap-3">
@@ -31,9 +34,9 @@
 			<thead>
 				<tr class="border-b border-neutral-700 text-left text-neutral-500">
 					<th class="pb-1.5 font-medium">Profile</th>
-					<th class="pb-1.5 text-right font-medium">Feet</th>
-					<th class="pb-1.5 text-right font-medium">Weight</th>
-					<th class="pb-1.5 text-right font-medium">$/ft</th>
+					<th class="pb-1.5 text-right font-medium">{lengthLongUnit(m)}</th>
+					<th class="pb-1.5 text-right font-medium">{weightUnit(m)}</th>
+					<th class="pb-1.5 text-right font-medium">$/{m ? 'm' : 'ft'}</th>
 					<th class="pb-1.5 text-right font-medium">Cost</th>
 				</tr>
 			</thead>
@@ -41,8 +44,8 @@
 				{#each materials.byProfile as profile}
 					<tr class="border-b border-neutral-700/50 text-neutral-300">
 						<td class="py-1.5 text-neutral-400">{profile.tubeLabel}</td>
-						<td class="py-1.5 text-right font-mono">{profile.totalFeet.toFixed(1)}</td>
-						<td class="py-1.5 text-right font-mono">{profile.weight.toFixed(1)} lb</td>
+						<td class="py-1.5 text-right font-mono">{ftToDisplay(profile.totalFeet, m)}</td>
+						<td class="py-1.5 text-right font-mono">{lbToDisplay(profile.weight, m)}</td>
 						<td class="py-1.5 text-right">
 							<input
 								type="number"
@@ -64,7 +67,7 @@
 
 		<div class="mt-3 flex items-center justify-between border-t border-neutral-700 pt-2 text-xs">
 			<span class="font-semibold text-neutral-300">Total Weight</span>
-			<span class="font-mono text-white">{materials.totalWeight.toFixed(1)} lb</span>
+			<span class="font-mono text-white">{lbToDisplay(materials.totalWeight, m)} {weightUnit(m)}</span>
 		</div>
 		{#if materials.totalCost > 0}
 			<div class="mt-1 flex items-center justify-between text-xs">

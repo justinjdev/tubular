@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tableStore, type BraceType, type Side } from '$lib/stores/table.svelte';
+	import { inToDisplay, lengthUnit } from '$lib/utils/units';
 
 	const config = $derived(tableStore.config);
 
@@ -109,7 +110,7 @@
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
 			<label for="brace-bottom" class="text-xs text-neutral-500">Brace Bottom</label>
-			<span class="text-xs text-neutral-400">{config.braceBottom}" from floor</span>
+			<span class="text-xs text-neutral-400">{inToDisplay(config.braceBottom, config.metric)} {lengthUnit(config.metric)}</span>
 		</div>
 		<input
 			id="brace-bottom"
@@ -127,7 +128,7 @@
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
 			<label for="brace-span" class="text-xs text-neutral-500">Brace Height</label>
-			<span class="text-xs text-neutral-400">{config.braceSpan}"</span>
+			<span class="text-xs text-neutral-400">{inToDisplay(config.braceSpan, config.metric)} {lengthUnit(config.metric)}</span>
 		</div>
 		<input
 			id="brace-span"

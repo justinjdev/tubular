@@ -2,12 +2,14 @@ import { jsPDF } from 'jspdf';
 import type { TableConfig } from '$lib/stores/table.svelte';
 import type { CutListItem } from './cut-list';
 import type { MaterialsSummary } from './materials';
+import { inToDisplay, lengthUnit, ftToDisplay, lengthLongUnit, lbToDisplay, weightUnit } from './units';
 
 export function exportPDF(
 	config: TableConfig,
 	items: CutListItem[],
 	materials: MaterialsSummary
 ): void {
+	const m = config.metric;
 	const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 	const pageWidth = doc.internal.pageSize.getWidth();
 	let y = 50;
@@ -19,10 +21,11 @@ export function exportPDF(
 	y += 28;
 
 	// Dimensions summary
+	const lu = lengthUnit(m);
 	doc.setFontSize(10);
 	doc.setFont('helvetica', 'normal');
 	doc.text(
-		`Dimensions: ${config.length}" L × ${config.width}" W × ${config.height}" H`,
+		`Dimensions: ${inToDisplay(config.length, m)} ${lu} L × ${inToDisplay(config.width, m)} ${lu} W × ${inToDisplay(config.height, m)} ${lu} H`,
 		40,
 		y
 	);
@@ -32,7 +35,7 @@ export function exportPDF(
 	doc.setFontSize(9);
 	doc.setFont('helvetica', 'bold');
 	const cols = [40, 180, 320, 440];
-	const headers = ['Part', 'Tube Profile', 'Length', 'Qty'];
+	const headers = ['Part', 'Profile', `Length (${lu})`, 'Qty'];
 	headers.forEach((h, i) => doc.text(h, cols[i], y));
 	y += 4;
 	doc.setDrawColor(160);
@@ -48,7 +51,7 @@ export function exportPDF(
 		}
 		doc.text(item.description, cols[0], y);
 		doc.text(item.tubeLabel, cols[1], y);
-		doc.text(item.length.toFixed(2) + '"', cols[2], y);
+		doc.text(inToDisplay(item.length, m), cols[2], y);
 		doc.text(String(item.quantity), cols[3], y);
 		y += 16;
 	}
@@ -61,6 +64,9 @@ export function exportPDF(
 		y = 50;
 	}
 
+	const llu = lengthLongUnit(m);
+	const wu = weightUnit(m);
+
 	doc.setFontSize(12);
 	doc.setFont('helvetica', 'bold');
 	doc.text('Materials Summary', 40, y);
@@ -69,7 +75,7 @@ export function exportPDF(
 	doc.setFontSize(9);
 	doc.setFont('helvetica', 'bold');
 	const matCols = [40, 180, 280, 380];
-	const matHeaders = ['Profile', 'Total Feet', 'Weight (lb)', 'Cost'];
+	const matHeaders = ['Profile', `Total ${llu}`, `Weight (${wu})`, 'Cost'];
 	matHeaders.forEach((h, i) => doc.text(h, matCols[i], y));
 	y += 4;
 	doc.line(40, y, pageWidth - 40, y);
@@ -78,15 +84,15 @@ export function exportPDF(
 	doc.setFont('helvetica', 'normal');
 	for (const p of materials.byProfile) {
 		doc.text(p.tubeLabel, matCols[0], y);
-		doc.text(p.totalFeet.toFixed(1), matCols[1], y);
-		doc.text(p.weight.toFixed(1), matCols[2], y);
+		doc.text(ftToDisplay(p.totalFeet, m), matCols[1], y);
+		doc.text(lbToDisplay(p.weight, m), matCols[2], y);
 		doc.text(p.totalCost !== undefined ? '$' + p.totalCost.toFixed(2) : '—', matCols[3], y);
 		y += 16;
 	}
 
 	y += 12;
 	doc.setFont('helvetica', 'bold');
-	doc.text(`Total Weight: ${materials.totalWeight.toFixed(1)} lb`, 40, y);
+	doc.text(`Total Weight: ${lbToDisplay(materials.totalWeight, m)} ${wu}`, 40, y);
 	if (materials.totalCost > 0) {
 		y += 16;
 		doc.text(`Total Cost: $${materials.totalCost.toFixed(2)}`, 40, y);

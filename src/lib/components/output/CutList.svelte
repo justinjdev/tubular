@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tableStore } from '$lib/stores/table.svelte';
 	import { computeCutList, type CutListItem } from '$lib/utils/cut-list';
+	import { inToDisplay, lengthUnit } from '$lib/utils/units';
 
 	const config = $derived(tableStore.config);
 	const items = $derived(computeCutList(config));
@@ -17,10 +18,7 @@
 	);
 
 	function fmtLength(inches: number): string {
-		if (config.metric) {
-			return (inches * 25.4).toFixed(1) + ' mm';
-		}
-		return inches.toFixed(2) + '"';
+		return inToDisplay(inches, config.metric) + ' ' + lengthUnit(config.metric);
 	}
 </script>
 

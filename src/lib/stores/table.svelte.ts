@@ -45,57 +45,83 @@ export const DEFAULT_CONFIG: TableConfig = {
 	metric: false
 };
 
+const STORAGE_KEY = 'tubular-config';
+
+function loadConfig(): TableConfig {
+	if (typeof localStorage === 'undefined') return { ...DEFAULT_CONFIG };
+	try {
+		const raw = localStorage.getItem(STORAGE_KEY);
+		if (!raw) return { ...DEFAULT_CONFIG };
+		const saved = JSON.parse(raw);
+		// Merge with defaults so new fields get default values
+		return { ...DEFAULT_CONFIG, ...saved };
+	} catch {
+		return { ...DEFAULT_CONFIG };
+	}
+}
+
+function saveConfig(cfg: TableConfig) {
+	if (typeof localStorage === 'undefined') return;
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+	} catch {
+		// quota exceeded or private browsing — ignore
+	}
+}
+
 function createTableStore() {
-	let config = $state<TableConfig>({ ...DEFAULT_CONFIG });
+	let config = $state<TableConfig>(loadConfig());
+
+	function set(updates: Partial<TableConfig>) {
+		config = { ...config, ...updates };
+		saveConfig(config);
+	}
 
 	return {
 		get config() {
 			return config;
 		},
-		set config(v: TableConfig) {
-			config = v;
-		},
 
 		updateDimension(key: 'length' | 'width' | 'height', value: number) {
 			const clamped = Math.max(12, Math.min(120, value));
-			config = { ...config, [key]: clamped };
+			set({ [key]: clamped });
 			if (key === 'height') {
 				const maxSpan = clamped - config.braceBottom - 1;
 				if (config.braceSpan > maxSpan) {
-					config = { ...config, braceSpan: Math.max(1, maxSpan) };
+					set({ braceSpan: Math.max(1, maxSpan) });
 				}
 			}
 		},
 
 		updateTube(member: 'legTube' | 'frameTube' | 'braceTube', tube: TubeProfile) {
-			config = { ...config, [member]: tube };
+			set({ [member]: tube });
 		},
 
 		updateBracing(side: Side, type: BraceType) {
-			config = {
-				...config,
-				bracing: { ...config.bracing, [side]: type }
-			};
+			set({ bracing: { ...config.bracing, [side]: type } });
 		},
 
 		updateBraceBottom(value: number) {
 			const maxBottom = config.height - config.braceSpan - 1;
-			const clamped = Math.max(0, Math.min(maxBottom, value));
-			config = { ...config, braceBottom: clamped };
+			set({ braceBottom: Math.max(0, Math.min(maxBottom, value)) });
 		},
 
 		updateBraceSpan(value: number) {
 			const maxSpan = config.height - config.braceBottom - 1;
-			const clamped = Math.max(1, Math.min(maxSpan, value));
-			config = { ...config, braceSpan: clamped };
+			set({ braceSpan: Math.max(1, Math.min(maxSpan, value)) });
 		},
 
 		toggleShelfFrame() {
-			config = { ...config, shelfFrame: !config.shelfFrame };
+			set({ shelfFrame: !config.shelfFrame });
 		},
 
 		toggleMetric() {
-			config = { ...config, metric: !config.metric };
+			set({ metric: !config.metric });
+		},
+
+		reset() {
+			config = { ...DEFAULT_CONFIG };
+			saveConfig(config);
 		}
 	};
 }
