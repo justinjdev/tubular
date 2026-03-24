@@ -138,7 +138,7 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	}
 
 	// Gussets in front view — triangles at inside top of each leg
-	if (config.gussets) {
+	if (Object.values(config.gussets).some(Boolean)) {
 		const sGs = config.gussetSize * scale;
 		doc.setFillColor(200, 170, 100);
 		// Left leg gusset (right side, hanging down from frame)
@@ -204,7 +204,7 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	}
 
 	// Gussets in side view
-	if (config.gussets) {
+	if (Object.values(config.gussets).some(Boolean)) {
 		const sGs = config.gussetSize * scale;
 		doc.setFillColor(200, 170, 100);
 		// Front leg gusset (inside)

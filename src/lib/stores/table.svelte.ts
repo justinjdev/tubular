@@ -2,12 +2,22 @@ import type { StockType } from '$lib/data/tubing-presets';
 
 export type BraceType = 'none' | 'h-brace' | 'x-brace';
 export type Side = 'front' | 'back' | 'left' | 'right';
+export type Corner = 'front-left' | 'front-right' | 'back-left' | 'back-right';
+export type GussetFace = 'front' | 'back' | 'left' | 'right';
 
 export interface TubeProfile {
 	width: number;
 	height: number;
 	thickness: number;
 	stockType: StockType;
+}
+
+export interface DrawerConfig {
+	height: number; // drawer box height in inches
+}
+
+export interface BayDrawers {
+	drawers: DrawerConfig[];
 }
 
 export interface TableConfig {
@@ -22,9 +32,16 @@ export interface TableConfig {
 	braceSpan: number;
 	centerSupports: number;
 	footAllowance: number;
-	gussets: boolean;
+	gussets: Record<GussetFace, boolean>;
 	gussetSize: number; // leg length of the right triangle, in inches
 	gussetThickness: number; // plate thickness in inches
+	drawers: BayDrawers[]; // one entry per bay (bays = centerSupports + 1)
+	drawerSlideGap: number; // clearance per side for slides (default 0.5")
+	drawerDepthInset: number; // front/back inset from table depth (default 2")
+	drawerSideThickness: number; // sides, front, back in inches
+	drawerBottomThickness: number; // bottom panel in inches
+	drawerSlideMount: 'angle-iron' | 'flat-bar' | 'hardwood'; // material for slide mounting rails
+	drawerSlideMountSize: string; // e.g. "1×1×1/8" for angle, "1×1/8" for flat bar
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -48,9 +65,16 @@ export const DEFAULT_CONFIG: TableConfig = {
 	braceSpan: 8,
 	centerSupports: 0,
 	footAllowance: 0,
-	gussets: false,
+	gussets: { front: false, back: false, left: false, right: false },
 	gussetSize: 3,
 	gussetThickness: 0.1875,
+	drawers: [],
+	drawerSlideGap: 0.5,
+	drawerDepthInset: 2,
+	drawerSideThickness: 0.5,
+	drawerBottomThickness: 0.25,
+	drawerSlideMount: 'angle-iron' as const,
+	drawerSlideMountSize: '1×1×1/8',
 	shelfFrame: false,
 	metric: false
 };
@@ -64,7 +88,22 @@ function loadConfig(): TableConfig {
 		if (!raw) return { ...DEFAULT_CONFIG };
 		const saved = JSON.parse(raw);
 		// Merge with defaults so new fields get default values
-		return { ...DEFAULT_CONFIG, ...saved };
+		const merged = { ...DEFAULT_CONFIG, ...saved };
+		// Migrate old gusset formats to per-face
+		if (typeof merged.gussets === 'boolean') {
+			const all = merged.gussets;
+			merged.gussets = { front: all, back: all, left: all, right: all };
+		} else if (merged.gussets && 'front-left' in merged.gussets) {
+			// Migrate per-corner to per-face
+			const g = merged.gussets as Record<string, boolean>;
+			merged.gussets = {
+				front: g['front-left'] || g['front-right'] || false,
+				back: g['back-left'] || g['back-right'] || false,
+				left: g['front-left'] || g['back-left'] || false,
+				right: g['front-right'] || g['back-right'] || false,
+			};
+		}
+		return merged;
 	} catch {
 		return { ...DEFAULT_CONFIG };
 	}
@@ -129,8 +168,12 @@ function createTableStore() {
 			set({ centerSupports: Math.max(0, Math.round(value)) });
 		},
 
-		toggleGussets() {
-			set({ gussets: !config.gussets });
+		toggleGussetFace(face: GussetFace) {
+			set({ gussets: { ...config.gussets, [face]: !config.gussets[face] } });
+		},
+
+		setAllGussets(enabled: boolean) {
+			set({ gussets: { front: enabled, back: enabled, left: enabled, right: enabled } });
 		},
 
 		updateGussetSize(value: number) {
@@ -139,6 +182,53 @@ function createTableStore() {
 
 		updateGussetThickness(value: number) {
 			set({ gussetThickness: Math.max(0.125, value) });
+		},
+
+		addDrawer(bayIndex: number, height: number = 4) {
+			const drawers = [...config.drawers];
+			while (drawers.length <= bayIndex) drawers.push({ drawers: [] });
+			drawers[bayIndex] = {
+				drawers: [...drawers[bayIndex].drawers, { height }]
+			};
+			set({ drawers });
+		},
+
+		removeDrawer(bayIndex: number, drawerIndex: number) {
+			const drawers = [...config.drawers];
+			if (!drawers[bayIndex]) return;
+			const bayDrawers = [...drawers[bayIndex].drawers];
+			bayDrawers.splice(drawerIndex, 1);
+			drawers[bayIndex] = { drawers: bayDrawers };
+			set({ drawers });
+		},
+
+		updateDrawerHeight(bayIndex: number, drawerIndex: number, height: number) {
+			const drawers = [...config.drawers];
+			if (!drawers[bayIndex]?.drawers[drawerIndex]) return;
+			const bayDrawers = [...drawers[bayIndex].drawers];
+			bayDrawers[drawerIndex] = { height: Math.max(2, Math.min(16, height)) };
+			drawers[bayIndex] = { drawers: bayDrawers };
+			set({ drawers });
+		},
+
+		updateDrawerSlideGap(value: number) {
+			set({ drawerSlideGap: Math.max(0.25, Math.min(1, value)) });
+		},
+
+		updateDrawerDepthInset(value: number) {
+			set({ drawerDepthInset: Math.max(0.5, Math.min(6, value)) });
+		},
+
+		updateDrawerSideThickness(value: number) {
+			set({ drawerSideThickness: value });
+		},
+
+		updateDrawerBottomThickness(value: number) {
+			set({ drawerBottomThickness: value });
+		},
+
+		updateDrawerSlideMount(mount: 'angle-iron' | 'flat-bar' | 'hardwood', size: string) {
+			set({ drawerSlideMount: mount, drawerSlideMountSize: size });
 		},
 
 		toggleShelfFrame() {

@@ -32,8 +32,7 @@
 	}
 </script>
 
-<section class="flex flex-col gap-4">
-	<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Bracing</h3>
+<div class="flex flex-col gap-3">
 
 	<!-- Top-down diagram -->
 	<div class="flex flex-col items-center gap-1">
@@ -141,4 +140,4 @@
 			oninput={(e) => tableStore.updateBraceSpan(parseFloat((e.target as HTMLInputElement).value))}
 		/>
 	</div>
-</section>
+</div>

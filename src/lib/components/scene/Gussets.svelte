@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { T } from '@threlte/core';
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, type GussetFace } from '$lib/stores/table.svelte';
 	import { Shape, ExtrudeGeometry } from 'three';
 
 	const cfg = $derived(tableStore.config);
@@ -22,9 +22,6 @@
 
 	const gussetKey = $derived(`${gs}-${gt}`);
 
-	// Right-triangle shape in XY plane:
-	//   (0,0) corner → (size, 0) horizontal → (0, -size) vertical (down)
-	// Extruded along +Z by thickness
 	function makeGussetGeometry(size: number, thickness: number) {
 		const shape = new Shape();
 		shape.moveTo(0, 0);
@@ -36,42 +33,49 @@
 
 	const geometry = $derived(makeGussetGeometry(gs, gt));
 
-	// 4 corners, each with inward direction signs toward table center
-	// For each corner, 2 gussets: one on the X-face, one on the Z-face
+	const hasAny = $derived(Object.values(cfg.gussets).some(Boolean));
+
+	// Each corner has 2 gussets:
+	//   - X-face gusset: visible from front or back (face = 'front' or 'back')
+	//   - Z-face gusset: visible from left or right (face = 'left' or 'right')
+	// The face a gusset is on determines which toggle controls it.
+	const cornerDefs: { sX: number; sZ: number; xFace: GussetFace; zFace: GussetFace; inX: number; inZ: number }[] = [
+		{ sX:  1, sZ:  1, xFace: 'front', zFace: 'right', inX: -1, inZ: -1 }, // front-right
+		{ sX: -1, sZ:  1, xFace: 'front', zFace: 'left',  inX:  1, inZ: -1 }, // front-left
+		{ sX:  1, sZ: -1, xFace: 'back',  zFace: 'right', inX: -1, inZ:  1 }, // back-right
+		{ sX: -1, sZ: -1, xFace: 'back',  zFace: 'left',  inX:  1, inZ:  1 }, // back-left
+	];
+
 	const placements = $derived.by<GussetPlacement[]>(() => {
 		const y = frameBottom;
 		const result: GussetPlacement[] = [];
 
-		const corners = [
-			{ legX:  halfL, legZ:  halfW, inX: -1, inZ: -1 }, // front-right
-			{ legX: -halfL, legZ:  halfW, inX:  1, inZ: -1 }, // front-left
-			{ legX:  halfL, legZ: -halfW, inX: -1, inZ:  1 }, // back-right
-			{ legX: -halfL, legZ: -halfW, inX:  1, inZ:  1 }, // back-left
-		];
+		for (const c of cornerDefs) {
+			const legX = c.sX * halfL;
+			const legZ = c.sZ * halfW;
 
-		for (const c of corners) {
-			// Gusset on X-face (visible from front/back)
-			// Sits on the inner X edge of the leg, horizontal extends inX
-			const jx = c.legX + c.inX * legW / 2;
-			const rotYx = c.inX === -1 ? Math.PI : 0;
-			// Center plate thickness on leg's Z position
-			const zPos = c.inX === -1 ? c.legZ + gt / 2 : c.legZ - gt / 2;
-			result.push({ position: [jx, y, zPos], rotation: [0, rotYx, 0] });
+			// X-face gusset (visible from front or back)
+			if (cfg.gussets[c.xFace]) {
+				const jx = legX + c.inX * legW / 2;
+				const rotYx = c.inX === -1 ? Math.PI : 0;
+				const zPos = c.inX === -1 ? legZ + gt / 2 : legZ - gt / 2;
+				result.push({ position: [jx, y, zPos], rotation: [0, rotYx, 0] });
+			}
 
-			// Gusset on Z-face (visible from left/right)
-			// Sits on the inner Z edge of the leg, horizontal extends inZ
-			const jz = c.legZ + c.inZ * legH / 2;
-			const rotYz = c.inZ === -1 ? Math.PI / 2 : -Math.PI / 2;
-			// Center plate thickness on leg's X position
-			const xPos = c.inZ === -1 ? c.legX - gt / 2 : c.legX + gt / 2;
-			result.push({ position: [xPos, y, jz], rotation: [0, rotYz, 0] });
+			// Z-face gusset (visible from left or right)
+			if (cfg.gussets[c.zFace]) {
+				const jz = legZ + c.inZ * legH / 2;
+				const rotYz = c.inZ === -1 ? Math.PI / 2 : -Math.PI / 2;
+				const xPos = c.inZ === -1 ? legX - gt / 2 : legX + gt / 2;
+				result.push({ position: [xPos, y, jz], rotation: [0, rotYz, 0] });
+			}
 		}
 
 		return result;
 	});
 </script>
 
-{#if cfg.gussets}
+{#if hasAny}
 	{#key gussetKey}
 		{#each placements as g}
 			<T.Group position={g.position} rotation={g.rotation}>

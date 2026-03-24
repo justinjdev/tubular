@@ -22,7 +22,7 @@
 		return isNaN(v) ? 12 : v;
 	}
 
-	function handleInput(key: 'length' | 'width' | 'height', e: Event) {
+	function handleChange(key: 'length' | 'width' | 'height', e: Event) {
 		const target = e.target as HTMLInputElement;
 		tableStore.updateDimension(key, parseInput(target.value));
 	}
@@ -33,9 +33,7 @@
 	}
 </script>
 
-<section class="flex flex-col gap-4">
-	<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Dimensions</h3>
-
+<div class="flex flex-col gap-3">
 	{#each dims as dim}
 		<div class="flex flex-col gap-1.5">
 			<div class="flex items-center justify-between">
@@ -47,12 +45,10 @@
 					<input
 						id="dim-{dim.key}"
 						type="number"
-						class="w-16 rounded bg-neutral-800 px-2 py-1 text-right text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+						class="w-20 rounded bg-neutral-800 px-2 py-1 text-right text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
 						value={displayValue(config[dim.key])}
-						min={config.metric ? Math.round(12 * 25.4) : 12}
-						max={config.metric ? Math.round(120 * 25.4) : 120}
-						step={config.metric ? 25 : 1}
-						oninput={(e) => handleInput(dim.key, e)}
+						step={config.metric ? 1 : 0.5}
+						onchange={(e) => handleChange(dim.key, e)}
 					/>
 					<span class="text-xs text-neutral-500">{config.metric ? 'mm' : 'in'}</span>
 				</div>
@@ -65,10 +61,10 @@
 				class="accent-amber-500"
 				min={12}
 				max={120}
-				step={1}
+				step={0.5}
 				value={config[dim.key]}
 				oninput={(e) => handleRange(dim.key, e)}
 			/>
 		</div>
 	{/each}
-</section>
+</div>

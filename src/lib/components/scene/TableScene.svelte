@@ -7,6 +7,7 @@
 	import Bracing from './Bracing.svelte';
 	import CenterSupports from './CenterSupports.svelte';
 	import Gussets from './Gussets.svelte';
+	import Drawers from './Drawers.svelte';
 	import DimensionLabels from './DimensionLabels.svelte';
 	import CanvasCapture from './CanvasCapture.svelte';
 
@@ -41,6 +42,7 @@
 	<Bracing />
 	<CenterSupports />
 	<Gussets />
+	<Drawers />
 	<DimensionLabels />
 	<CanvasCapture onReady={onCaptureReady} />
 </Canvas>

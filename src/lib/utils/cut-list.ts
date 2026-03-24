@@ -121,10 +121,10 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		});
 	}
 
-	// Gussets — triangular plates at each leg-to-frame joint
-	// Cut from flat bar stock as right triangles (hypotenuse = gussetSize * sqrt(2))
-	if (config.gussets) {
-		// 4 corners × 2 gussets per corner (one on each face of the leg)
+	// Gussets — triangular plates at leg-to-frame joints
+	// Each enabled face adds 2 gussets (one at each corner on that side)
+	const gussetFaces = Object.values(config.gussets).filter(Boolean).length;
+	if (gussetFaces > 0) {
 		items.push({
 			group: 'Gusset',
 			description: 'Corner Gusset Plate',
@@ -133,8 +133,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: config.gussetSize,
 			height: config.gussetSize,
 			thickness: config.gussetThickness,
-			length: config.gussetSize, // square blank before trimming to triangle
-			quantity: 8
+			length: config.gussetSize,
+			quantity: gussetFaces * 2
 		});
 	}
 

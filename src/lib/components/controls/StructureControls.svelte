@@ -1,13 +1,21 @@
 <script lang="ts">
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, type GussetFace } from '$lib/stores/table.svelte';
 	import { inToDisplay, lengthUnit } from '$lib/utils/units';
 	import { toFraction } from '$lib/utils/fractions';
 
 	const config = $derived(tableStore.config);
+
+	const anyGusset = $derived(Object.values(config.gussets).some(Boolean));
+	const allGussets = $derived(Object.values(config.gussets).every(Boolean));
+
+	function gussetColor(face: GussetFace): string {
+		return config.gussets[face]
+			? 'bg-amber-700 text-amber-200 ring-amber-600'
+			: 'bg-neutral-700 text-neutral-400 ring-neutral-600';
+	}
 </script>
 
-<section class="flex flex-col gap-4">
-	<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-400">Structure</h3>
+<div class="flex flex-col gap-3">
 
 	<!-- Shelf frame toggle -->
 	<label class="flex cursor-pointer items-center gap-2">
@@ -20,18 +28,71 @@
 		<span class="text-sm text-neutral-300">Shelf frame</span>
 	</label>
 
-	<!-- Corner gussets toggle -->
-	<label class="flex cursor-pointer items-center gap-2">
-		<input
-			type="checkbox"
-			class="h-4 w-4 rounded border-neutral-600 bg-neutral-800 accent-amber-500"
-			checked={config.gussets}
-			onchange={() => tableStore.toggleGussets()}
-		/>
-		<span class="text-sm text-neutral-300">Corner gussets</span>
-	</label>
+	<!-- Corner gussets -->
+	<div class="flex flex-col gap-2">
+		<label class="flex cursor-pointer items-center gap-2">
+			<input
+				type="checkbox"
+				class="h-4 w-4 rounded border-neutral-600 bg-neutral-800 accent-amber-500"
+				checked={allGussets}
+				indeterminate={anyGusset && !allGussets}
+				onchange={() => tableStore.setAllGussets(!allGussets)}
+			/>
+			<span class="text-sm text-neutral-300">Corner gussets</span>
+		</label>
 
-	{#if config.gussets}
+		{#if anyGusset}
+			<!-- Per-side diagram — same layout as bracing controls -->
+			<div class="flex flex-col items-center gap-1">
+				<span class="mb-1 text-[10px] uppercase text-neutral-600">Gusset Sides</span>
+
+				<!-- Back -->
+				<button
+					class="h-7 w-32 rounded-t ring-1 text-xs font-bold transition-colors {gussetColor('back')}"
+					onclick={() => tableStore.toggleGussetFace('back')}
+					title="Back — click to toggle"
+				>
+					{config.gussets.back ? 'Back' : '—'}
+				</button>
+
+				<div class="flex items-center gap-1">
+					<!-- Left -->
+					<button
+						class="h-20 w-7 rounded-l ring-1 text-xs font-bold transition-colors [writing-mode:vertical-lr] {gussetColor('left')}"
+						onclick={() => tableStore.toggleGussetFace('left')}
+						title="Left — click to toggle"
+					>
+						{config.gussets.left ? 'L' : '—'}
+					</button>
+
+					<!-- Table interior -->
+					<div class="flex h-20 w-[104px] items-center justify-center rounded border border-dashed border-neutral-700">
+						<span class="text-[10px] text-neutral-600">table</span>
+					</div>
+
+					<!-- Right -->
+					<button
+						class="h-20 w-7 rounded-r ring-1 text-xs font-bold transition-colors [writing-mode:vertical-lr] {gussetColor('right')}"
+						onclick={() => tableStore.toggleGussetFace('right')}
+						title="Right — click to toggle"
+					>
+						{config.gussets.right ? 'R' : '—'}
+					</button>
+				</div>
+
+				<!-- Front -->
+				<button
+					class="h-7 w-32 rounded-b ring-1 text-xs font-bold transition-colors {gussetColor('front')}"
+					onclick={() => tableStore.toggleGussetFace('front')}
+					title="Front — click to toggle"
+				>
+					{config.gussets.front ? 'Front' : '—'}
+				</button>
+			</div>
+		{/if}
+	</div>
+
+	{#if anyGusset}
 		<!-- Gusset size -->
 		<div class="flex flex-col gap-1.5">
 			<div class="flex items-center justify-between">
@@ -128,4 +189,4 @@
 			oninput={(e) => tableStore.updateFootAllowance(parseFloat((e.target as HTMLInputElement).value))}
 		/>
 	</div>
-</section>
+</div>

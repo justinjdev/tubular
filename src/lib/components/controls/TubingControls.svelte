@@ -76,9 +76,7 @@
 	}
 </script>
 
-<section class="flex flex-col gap-1">
-	<h3 class="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-400">Tubing</h3>
-
+<div class="flex flex-col gap-1">
 	{#each sections as sec}
 		{@const tube = config[sec.key]}
 		{@const isOpen = openSection === sec.key}
@@ -212,4 +210,4 @@
 			{/if}
 		</div>
 	{/each}
-</section>
+</div>
