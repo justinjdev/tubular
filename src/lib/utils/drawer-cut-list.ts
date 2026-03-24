@@ -89,7 +89,7 @@ export function computeDrawerCutList(config: TableConfig): DrawerCutList {
 
 	// Drawer box dimensions
 	const boxWidth = bayWidth - config.drawerSlideGap * 2;
-	const boxDepth = config.width - legH * 2 - config.drawerDepthInset;
+	const boxDepth = config.drawerDepth;
 	const slideLen = nearestSlideLength(boxDepth);
 
 	let totalDrawers = 0;

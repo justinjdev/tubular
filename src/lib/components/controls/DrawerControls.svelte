@@ -47,17 +47,34 @@
 		</div>
 
 		<div class="flex items-center justify-between">
-			<label for="depth-inset" class="text-xs text-neutral-500">Depth Inset</label>
+			<label for="drawer-depth" class="text-xs text-neutral-500">Drawer Depth</label>
 			<div class="flex items-center gap-1">
 				<input
-					id="depth-inset"
+					id="drawer-depth"
 					type="number"
 					class="w-16 rounded bg-neutral-800 px-2 py-1 text-right text-xs text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
-					value={config.drawerDepthInset}
-					min={0.5}
-					max={6}
+					value={config.drawerDepth}
+					min={6}
+					max={48}
 					step={0.5}
-					onchange={(e) => tableStore.updateDrawerDepthInset(parseFloat((e.target as HTMLInputElement).value))}
+					onchange={(e) => tableStore.updateDrawerDepth(parseFloat((e.target as HTMLInputElement).value))}
+				/>
+				<span class="text-[10px] text-neutral-500">in</span>
+			</div>
+		</div>
+
+		<div class="flex items-center justify-between">
+			<label for="front-inset" class="text-xs text-neutral-500">Front Inset</label>
+			<div class="flex items-center gap-1">
+				<input
+					id="front-inset"
+					type="number"
+					class="w-16 rounded bg-neutral-800 px-2 py-1 text-right text-xs text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+					value={config.drawerFrontInset}
+					min={0}
+					max={6}
+					step={0.25}
+					onchange={(e) => tableStore.updateDrawerFrontInset(parseFloat((e.target as HTMLInputElement).value))}
 				/>
 				<span class="text-[10px] text-neutral-500">in</span>
 			</div>

@@ -17,9 +17,15 @@
 		const numBays = cfg.centerSupports + 1;
 		return innerLength / numBays - cfg.drawerSlideGap * 2;
 	});
-	const boxDepth = $derived(cfg.width - legH * 2 - cfg.drawerDepthInset);
+	const boxDepth = $derived(cfg.drawerDepth);
 
-	const GAP = 0.5; // gap between stacked drawers
+	// Front is +Z. Front leg outer face = width/2.
+	// With 0 inset, drawer front face is flush with outer edge of front legs.
+	const frontLegOuter = $derived(cfg.width / 2);
+	const drawerFrontEdge = $derived(frontLegOuter - cfg.drawerFrontInset);
+	const zCenter = $derived(drawerFrontEdge - boxDepth / 2);
+
+	const GAP = 0.5;
 
 	interface DrawerBox {
 		position: [number, number, number];
@@ -30,12 +36,11 @@
 		const result: DrawerBox[] = [];
 		for (const bay of bays) {
 			const bayDrawers = cfg.drawers[bay.bayIndex]?.drawers ?? [];
-			// Stack from top down (just below frame)
 			let yTop = frameBottom;
 			for (const d of bayDrawers) {
 				const yCenter = yTop - d.height / 2;
 				result.push({
-					position: [bay.bayStartX, yCenter, 0],
+					position: [bay.bayStartX, yCenter, zCenter],
 					size: [boxWidth, d.height, boxDepth]
 				});
 				yTop -= d.height + GAP;

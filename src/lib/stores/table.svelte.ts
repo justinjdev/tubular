@@ -37,7 +37,8 @@ export interface TableConfig {
 	gussetThickness: number; // plate thickness in inches
 	drawers: BayDrawers[]; // one entry per bay (bays = centerSupports + 1)
 	drawerSlideGap: number; // clearance per side for slides (default 0.5")
-	drawerDepthInset: number; // front/back inset from table depth (default 2")
+	drawerDepth: number; // drawer box depth in inches
+	drawerFrontInset: number; // how far back from the front leg face the drawer sits
 	drawerSideThickness: number; // sides, front, back in inches
 	drawerBottomThickness: number; // bottom panel in inches
 	drawerSlideMount: 'angle-iron' | 'flat-bar' | 'hardwood'; // material for slide mounting rails
@@ -70,7 +71,8 @@ export const DEFAULT_CONFIG: TableConfig = {
 	gussetThickness: 0.1875,
 	drawers: [],
 	drawerSlideGap: 0.5,
-	drawerDepthInset: 2,
+	drawerDepth: 18,
+	drawerFrontInset: 1,
 	drawerSideThickness: 0.5,
 	drawerBottomThickness: 0.25,
 	drawerSlideMount: 'angle-iron' as const,
@@ -215,8 +217,12 @@ function createTableStore() {
 			set({ drawerSlideGap: Math.max(0.25, Math.min(1, value)) });
 		},
 
-		updateDrawerDepthInset(value: number) {
-			set({ drawerDepthInset: Math.max(0.5, Math.min(6, value)) });
+		updateDrawerDepth(value: number) {
+			set({ drawerDepth: Math.max(6, Math.min(48, value)) });
+		},
+
+		updateDrawerFrontInset(value: number) {
+			set({ drawerFrontInset: Math.max(0, Math.min(6, value)) });
 		},
 
 		updateDrawerSideThickness(value: number) {
