@@ -14,7 +14,9 @@
 	const bh = $derived(cfg.braceTube.height);
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
-	const braceH = $derived(cfg.braceHeight);
+	const braceTop = $derived(cfg.braceHeight);
+	const braceBot = $derived(cfg.braceBottomHeight);
+	const braceSpan = $derived(braceTop - braceBot);
 
 	const halfLength = $derived(cfg.length / 2 - legW / 2);
 	const halfWidth = $derived(cfg.width / 2 - legH / 2);
@@ -24,20 +26,21 @@
 
 	// Determine span and angle based on side orientation
 	const span = $derived(side === 'front' || side === 'back' ? longSpan : shortSpan);
-	const diagLength = $derived(Math.sqrt(span * span + braceH * braceH));
-	const angle = $derived(Math.atan2(braceH, span));
+	const diagLength = $derived(Math.sqrt(span * span + braceSpan * braceSpan));
+	const angle = $derived(Math.atan2(braceSpan, span));
 
-	// Center position of the X brace
+	// Center position of the X brace (vertically centered between bottom and top)
+	const centerY = $derived(braceBot + braceSpan / 2);
 	const center = $derived((): [number, number, number] => {
 		switch (side) {
 			case 'front':
-				return [0, braceH / 2, halfWidth];
+				return [0, centerY, halfWidth];
 			case 'back':
-				return [0, braceH / 2, -halfWidth];
+				return [0, centerY, -halfWidth];
 			case 'left':
-				return [-halfLength, braceH / 2, 0];
+				return [-halfLength, centerY, 0];
 			case 'right':
-				return [halfLength, braceH / 2, 0];
+				return [halfLength, centerY, 0];
 		}
 	});
 

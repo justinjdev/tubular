@@ -82,7 +82,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 				quantity: 1
 			});
 		} else if (braceType === 'x-brace') {
-			const diagonalLength = Math.sqrt(span * span + config.braceHeight * config.braceHeight);
+			const verticalSpan = config.braceHeight - config.braceBottomHeight;
+			const diagonalLength = Math.sqrt(span * span + verticalSpan * verticalSpan);
 			items.push({
 				group: 'Bracing',
 				description: `X-Brace \u2014 ${sideLabel}`,

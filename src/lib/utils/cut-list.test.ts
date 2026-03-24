@@ -64,6 +64,22 @@ describe('computeCutList', () => {
 		expect(xBrace!.length).toBeCloseTo(Math.sqrt(740), 6);
 	});
 
+	it('computes X-brace with non-zero bottom height', () => {
+		const config = cfg({
+			bracing: { front: 'none', back: 'none', left: 'x-brace', right: 'none' },
+			braceHeight: 10,
+			braceBottomHeight: 4
+		});
+		const items = computeCutList(config);
+		const xBrace = items.find(
+			(i) => i.group === 'Bracing' && i.description.includes('X-Brace')
+		);
+		expect(xBrace).toBeDefined();
+		// verticalSpan = 10 - 4 = 6, span = 26
+		// diagonal = sqrt(26^2 + 6^2) = sqrt(676 + 36) = sqrt(712)
+		expect(xBrace!.length).toBeCloseTo(Math.sqrt(712), 6);
+	});
+
 	it('includes shelf frame rails when enabled', () => {
 		const config = cfg({ shelfFrame: true });
 		const items = computeCutList(config);

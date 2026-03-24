@@ -16,6 +16,7 @@ export interface TableConfig {
 	braceTube: TubeProfile;
 	bracing: Record<Side, BraceType>;
 	braceHeight: number;
+	braceBottomHeight: number;
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -35,6 +36,7 @@ export const DEFAULT_CONFIG: TableConfig = {
 	braceTube: defaultTube(1, 1, 0.075),
 	bracing: { front: 'none', back: 'none', left: 'none', right: 'none' },
 	braceHeight: 8,
+	braceBottomHeight: 0,
 	shelfFrame: false,
 	metric: false
 };
@@ -70,8 +72,13 @@ function createTableStore() {
 		},
 
 		updateBraceHeight(value: number) {
-			const clamped = Math.max(1, Math.min(config.height - 1, value));
+			const clamped = Math.max(config.braceBottomHeight + 1, Math.min(config.height - 1, value));
 			config = { ...config, braceHeight: clamped };
+		},
+
+		updateBraceBottomHeight(value: number) {
+			const clamped = Math.max(0, Math.min(config.braceHeight - 1, value));
+			config = { ...config, braceBottomHeight: clamped };
 		},
 
 		toggleShelfFrame() {
