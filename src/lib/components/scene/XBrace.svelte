@@ -10,8 +10,10 @@
 	let { side }: Props = $props();
 
 	const cfg = $derived(tableStore.config);
-	const bw = $derived(cfg.braceTube.width);
-	const bh = $derived(cfg.braceTube.height);
+	const isFlat = $derived(cfg.braceTube.stockType === 'flat-bar');
+	// Flat bar: wide face vertical (width → Y), thin face → depth
+	const bVertical = $derived(isFlat ? cfg.braceTube.width : cfg.braceTube.height);
+	const bDepth = $derived(isFlat ? cfg.braceTube.height : cfg.braceTube.width);
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
 	const braceBot = $derived(cfg.braceBottom);
@@ -53,7 +55,7 @@
 	);
 
 	const diagSize = $derived(
-		(isFrontBack ? [diagLength, bh, bw] : [bw, bh, diagLength]) as [number, number, number]
+		(isFrontBack ? [diagLength, bVertical, bDepth] : [bDepth, bVertical, diagLength]) as [number, number, number]
 	);
 </script>
 
