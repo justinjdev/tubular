@@ -1,3 +1,5 @@
+import type { StockType } from '$lib/data/tubing-presets';
+
 export type BraceType = 'none' | 'h-brace' | 'x-brace';
 export type Side = 'front' | 'back' | 'left' | 'right';
 
@@ -5,6 +7,7 @@ export interface TubeProfile {
 	width: number;
 	height: number;
 	thickness: number;
+	stockType: StockType;
 }
 
 export interface TableConfig {
@@ -21,10 +24,11 @@ export interface TableConfig {
 	metric: boolean;
 }
 
-const defaultTube = (w: number, h: number, t: number): TubeProfile => ({
+const defaultTube = (w: number, h: number, t: number, stockType: StockType = 'tube'): TubeProfile => ({
 	width: w,
 	height: h,
-	thickness: t
+	thickness: t,
+	stockType
 });
 
 export const DEFAULT_CONFIG: TableConfig = {

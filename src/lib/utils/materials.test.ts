@@ -7,6 +7,7 @@ function makeItem(overrides: Partial<CutListItem> = {}): CutListItem {
 		group: 'Legs',
 		description: 'Leg',
 		tubeLabel: '2" \u00d7 2" (0.075")',
+		stockType: 'tube',
 		width: 2,
 		height: 2,
 		thickness: 0.075,
@@ -71,6 +72,27 @@ describe('computeMaterials', () => {
 		expect(result.byProfile[0].costPerFoot).toBe(5.0);
 		expect(result.byProfile[0].totalCost).toBe(5.0); // 1 foot * $5
 		expect(result.totalCost).toBe(5.0);
+	});
+
+	it('computes weight for flat bar using solid cross-section', () => {
+		// 2" x 0.25" flat bar, 12 inches (1 foot)
+		const items: CutListItem[] = [
+			makeItem({
+				stockType: 'flat-bar',
+				width: 2,
+				height: 0.25,
+				thickness: 0.25,
+				tubeLabel: '2" × 0.25" flat',
+				length: 12,
+				quantity: 1
+			})
+		];
+		const result = computeMaterials(items);
+		// Solid cross section = 2 * 0.25 = 0.5 in^2
+		// Volume = 0.5 * 12 = 6 in^3
+		// Weight = 6 * (490/1728) ~ 1.701 lbs
+		expect(result.byProfile[0].weight).toBeGreaterThan(1.6);
+		expect(result.byProfile[0].weight).toBeLessThan(1.8);
 	});
 
 	it('returns zero cost when no costPerFoot provided', () => {

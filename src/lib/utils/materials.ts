@@ -1,4 +1,5 @@
 import type { CutListItem } from './cut-list';
+import type { StockType } from '$lib/data/tubing-presets';
 
 export interface ProfileSummary {
 	tubeLabel: string;
@@ -18,8 +19,8 @@ export interface MaterialsSummary {
 	totalCost: number;
 }
 
-function profileKey(w: number, h: number, t: number): string {
-	return `${w}-${h}-${t}`;
+function profileKey(w: number, h: number, t: number, st: StockType): string {
+	return `${st}-${w}-${h}-${t}`;
 }
 
 /** Steel density: 490 lb/ft^3 = 490/1728 lb/in^3 */
@@ -31,11 +32,11 @@ export function computeMaterials(
 ): MaterialsSummary {
 	const grouped = new Map<
 		string,
-		{ width: number; height: number; thickness: number; tubeLabel: string; totalInches: number }
+		{ width: number; height: number; thickness: number; stockType: StockType; tubeLabel: string; totalInches: number }
 	>();
 
 	for (const item of items) {
-		const key = profileKey(item.width, item.height, item.thickness);
+		const key = profileKey(item.width, item.height, item.thickness, item.stockType);
 		const existing = grouped.get(key);
 		const linearInches = item.length * item.quantity;
 
@@ -46,6 +47,7 @@ export function computeMaterials(
 				width: item.width,
 				height: item.height,
 				thickness: item.thickness,
+				stockType: item.stockType,
 				tubeLabel: item.tubeLabel,
 				totalInches: linearInches
 			});
@@ -60,8 +62,10 @@ export function computeMaterials(
 		const { width: w, height: h, thickness: t } = entry;
 		const totalFeet = entry.totalInches / 12;
 
-		// Cross-section area: outer rectangle minus inner rectangle
-		const crossSection = w * h - (w - 2 * t) * (h - 2 * t);
+		// Cross-section area: solid for flat bar, hollow for tube
+		const crossSection = entry.stockType === 'flat-bar'
+			? w * h
+			: w * h - (w - 2 * t) * (h - 2 * t);
 		// Volume in cubic inches, then multiply by density
 		const weight = crossSection * entry.totalInches * STEEL_DENSITY_PER_CUBIC_INCH;
 

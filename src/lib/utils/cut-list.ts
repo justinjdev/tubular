@@ -1,9 +1,11 @@
-import type { TableConfig, Side } from '$lib/stores/table.svelte';
+import type { TableConfig, Side, TubeProfile } from '$lib/stores/table.svelte';
+import type { StockType } from '$lib/data/tubing-presets';
 
 export interface CutListItem {
 	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Shelf Frame';
 	description: string;
 	tubeLabel: string;
+	stockType: StockType;
 	width: number;
 	height: number;
 	thickness: number;
@@ -11,8 +13,11 @@ export interface CutListItem {
 	quantity: number;
 }
 
-function tubeLabel(w: number, h: number, t: number): string {
-	return `${w}" \u00d7 ${h}" (${t}")`;
+function stockLabel(p: TubeProfile): string {
+	if (p.stockType === 'flat-bar') {
+		return `${p.width}" \u00d7 ${p.height}" flat`;
+	}
+	return `${p.width}" \u00d7 ${p.height}" (${p.thickness}")`;
 }
 
 export function computeCutList(config: TableConfig): CutListItem[] {
@@ -23,7 +28,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 	items.push({
 		group: 'Legs',
 		description: 'Leg',
-		tubeLabel: tubeLabel(legTube.width, legTube.height, legTube.thickness),
+		tubeLabel: stockLabel(legTube),
+		stockType: legTube.stockType,
 		width: legTube.width,
 		height: legTube.height,
 		thickness: legTube.thickness,
@@ -35,7 +41,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 	items.push({
 		group: 'Top Frame',
 		description: 'Long Rail',
-		tubeLabel: tubeLabel(frameTube.width, frameTube.height, frameTube.thickness),
+		tubeLabel: stockLabel(frameTube),
+		stockType: frameTube.stockType,
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
@@ -47,7 +54,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 	items.push({
 		group: 'Top Frame',
 		description: 'Short Rail',
-		tubeLabel: tubeLabel(frameTube.width, frameTube.height, frameTube.thickness),
+		tubeLabel: stockLabel(frameTube),
+		stockType: frameTube.stockType,
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
@@ -74,7 +82,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			items.push({
 				group: 'Bracing',
 				description: `H-Brace \u2014 ${sideLabel}`,
-				tubeLabel: tubeLabel(braceTube.width, braceTube.height, braceTube.thickness),
+				tubeLabel: stockLabel(braceTube),
+				stockType: braceTube.stockType,
 				width: braceTube.width,
 				height: braceTube.height,
 				thickness: braceTube.thickness,
@@ -86,7 +95,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			items.push({
 				group: 'Bracing',
 				description: `X-Brace \u2014 ${sideLabel}`,
-				tubeLabel: tubeLabel(braceTube.width, braceTube.height, braceTube.thickness),
+				tubeLabel: stockLabel(braceTube),
+				stockType: braceTube.stockType,
 				width: braceTube.width,
 				height: braceTube.height,
 				thickness: braceTube.thickness,
@@ -101,7 +111,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		items.push({
 			group: 'Shelf Frame',
 			description: 'Long Rail',
-			tubeLabel: tubeLabel(braceTube.width, braceTube.height, braceTube.thickness),
+			tubeLabel: stockLabel(braceTube),
+			stockType: braceTube.stockType,
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
@@ -111,7 +122,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		items.push({
 			group: 'Shelf Frame',
 			description: 'Short Rail',
-			tubeLabel: tubeLabel(braceTube.width, braceTube.height, braceTube.thickness),
+			tubeLabel: stockLabel(braceTube),
+			stockType: braceTube.stockType,
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
