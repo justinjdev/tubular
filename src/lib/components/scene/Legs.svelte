@@ -21,5 +21,5 @@
 </script>
 
 {#each corners as pos}
-	<TubeMember size={[legW, legHeight, legH]} position={pos} />
+	<TubeMember size={[legW, legHeight, legH]} position={pos} color="#7a8a9a" />
 {/each}

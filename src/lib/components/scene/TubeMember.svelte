@@ -25,6 +25,6 @@
 		<T.MeshStandardMaterial {color} metalness={0.5} roughness={0.5} />
 	</T.Mesh>
 	<T.LineSegments geometry={edges}>
-		<T.LineBasicMaterial color="#1a1a1a" />
+		<T.LineBasicMaterial color="#3a3a3a" />
 	</T.LineSegments>
 </T.Group>

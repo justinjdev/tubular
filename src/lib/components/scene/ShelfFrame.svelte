@@ -19,9 +19,9 @@
 </script>
 
 <!-- Long rails (X-axis), front and back -->
-<TubeMember size={[longSpan, bVertical, bDepth]} position={[0, shelfY, halfWidth]} />
-<TubeMember size={[longSpan, bVertical, bDepth]} position={[0, shelfY, -halfWidth]} />
+<TubeMember size={[longSpan, bVertical, bDepth]} position={[0, shelfY, halfWidth]} color="#c08040" />
+<TubeMember size={[longSpan, bVertical, bDepth]} position={[0, shelfY, -halfWidth]} color="#c08040" />
 
 <!-- Short rails (Z-axis), left and right -->
-<TubeMember size={[bDepth, bVertical, shortSpan]} position={[halfLength, shelfY, 0]} />
-<TubeMember size={[bDepth, bVertical, shortSpan]} position={[-halfLength, shelfY, 0]} />
+<TubeMember size={[bDepth, bVertical, shortSpan]} position={[halfLength, shelfY, 0]} color="#c08040" />
+<TubeMember size={[bDepth, bVertical, shortSpan]} position={[-halfLength, shelfY, 0]} color="#c08040" />

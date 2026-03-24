@@ -19,9 +19,9 @@
 </script>
 
 <!-- Long rails (X-axis), front and back -->
-<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, halfWidth]} />
-<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, -halfWidth]} />
+<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, halfWidth]} color="#a0b0c0" />
+<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, -halfWidth]} color="#a0b0c0" />
 
 <!-- Short rails (Z-axis), left and right, shortened for butt joints -->
-<TubeMember size={[fw, fh, shortRailLength]} position={[halfLength, frameY, 0]} />
-<TubeMember size={[fw, fh, shortRailLength]} position={[-halfLength, frameY, 0]} />
+<TubeMember size={[fw, fh, shortRailLength]} position={[halfLength, frameY, 0]} color="#a0b0c0" />
+<TubeMember size={[fw, fh, shortRailLength]} position={[-halfLength, frameY, 0]} color="#a0b0c0" />

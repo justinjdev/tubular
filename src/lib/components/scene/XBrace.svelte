@@ -32,21 +32,39 @@
 
 	// Center position of the X brace (vertically centered between bottom and top)
 	const centerY = $derived(braceBot + braceSpan / 2);
-	const center = $derived((): [number, number, number] => {
+
+	const isFrontBack = $derived(side === 'front' || side === 'back');
+
+	// Offset each diagonal slightly in the depth axis to prevent z-fighting
+	const halfDepth = $derived(bDepth / 2);
+
+	const center1 = $derived((): [number, number, number] => {
 		switch (side) {
 			case 'front':
-				return [0, centerY, halfWidth];
+				return [0, centerY, halfWidth + halfDepth];
 			case 'back':
-				return [0, centerY, -halfWidth];
+				return [0, centerY, -halfWidth - halfDepth];
 			case 'left':
-				return [-halfLength, centerY, 0];
+				return [-halfLength - halfDepth, centerY, 0];
 			case 'right':
-				return [halfLength, centerY, 0];
+				return [halfLength + halfDepth, centerY, 0];
+		}
+	});
+
+	const center2 = $derived((): [number, number, number] => {
+		switch (side) {
+			case 'front':
+				return [0, centerY, halfWidth - halfDepth];
+			case 'back':
+				return [0, centerY, -halfWidth + halfDepth];
+			case 'left':
+				return [-halfLength + halfDepth, centerY, 0];
+			case 'right':
+				return [halfLength - halfDepth, centerY, 0];
 		}
 	});
 
 	// Rotation: diagonals rotate around appropriate axis
-	const isFrontBack = $derived(side === 'front' || side === 'back');
 	const rot1 = $derived(
 		(isFrontBack ? [0, 0, angle] : [angle, 0, 0]) as [number, number, number]
 	);
@@ -59,5 +77,5 @@
 	);
 </script>
 
-<TubeMember size={diagSize} position={center()} rotation={rot1} />
-<TubeMember size={diagSize} position={center()} rotation={rot2} />
+<TubeMember size={diagSize} position={center1()} rotation={rot1} color="#c08040" />
+<TubeMember size={diagSize} position={center2()} rotation={rot2} color="#c08040" />

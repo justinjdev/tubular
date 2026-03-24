@@ -47,4 +47,4 @@
 	});
 </script>
 
-<TubeMember size={size()} position={position()} />
+<TubeMember size={size()} position={position()} color="#c08040" />
