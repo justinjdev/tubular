@@ -5,6 +5,7 @@
 	import BracingControls from '$lib/components/controls/BracingControls.svelte';
 	import CutList from '$lib/components/output/CutList.svelte';
 	import MaterialsSummary from '$lib/components/output/MaterialsSummary.svelte';
+	import StockNesting from '$lib/components/output/StockNesting.svelte';
 	import ExportButtons from '$lib/components/output/ExportButtons.svelte';
 </script>
 
@@ -20,6 +21,7 @@
 
 		<CutList />
 		<MaterialsSummary />
+		<StockNesting />
 		<ExportButtons />
 	</aside>
 
