@@ -5,12 +5,19 @@
 	import { exportPDF } from '$lib/utils/export-pdf';
 	import { exportDXF } from '$lib/utils/export-dxf';
 
+	interface Props {
+		captureScene?: () => string | null;
+	}
+
+	let { captureScene }: Props = $props();
+
 	const config = $derived(tableStore.config);
 	const items = $derived(computeCutList(config));
 	const materials = $derived(computeMaterials(items));
 
 	function handlePDF() {
-		exportPDF(config, items, materials);
+		const sceneImage = captureScene?.() ?? null;
+		exportPDF(config, items, materials, sceneImage);
 	}
 
 	function handleDXF() {

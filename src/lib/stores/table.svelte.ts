@@ -22,6 +22,9 @@ export interface TableConfig {
 	braceSpan: number;
 	centerSupports: number;
 	footAllowance: number;
+	gussets: boolean;
+	gussetSize: number; // leg length of the right triangle, in inches
+	gussetThickness: number; // plate thickness in inches
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -45,6 +48,9 @@ export const DEFAULT_CONFIG: TableConfig = {
 	braceSpan: 8,
 	centerSupports: 0,
 	footAllowance: 0,
+	gussets: false,
+	gussetSize: 3,
+	gussetThickness: 0.1875,
 	shelfFrame: false,
 	metric: false
 };
@@ -121,6 +127,18 @@ function createTableStore() {
 
 		updateCenterSupports(value: number) {
 			set({ centerSupports: Math.max(0, Math.round(value)) });
+		},
+
+		toggleGussets() {
+			set({ gussets: !config.gussets });
+		},
+
+		updateGussetSize(value: number) {
+			set({ gussetSize: Math.max(1, Math.min(12, value)) });
+		},
+
+		updateGussetThickness(value: number) {
+			set({ gussetThickness: Math.max(0.125, value) });
 		},
 
 		toggleShelfFrame() {

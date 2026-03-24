@@ -16,7 +16,8 @@
 		color = '#9aA8b8'
 	}: Props = $props();
 
-	const edges = $derived(new EdgesGeometry(new BoxGeometry(...size)));
+	// Key on stringified size so geometry only rebuilds when dimensions change
+	const sizeKey = $derived(size.join(','));
 </script>
 
 <T.Group {position} {rotation}>
@@ -24,7 +25,10 @@
 		<T.BoxGeometry args={size} />
 		<T.MeshStandardMaterial {color} metalness={0.5} roughness={0.5} />
 	</T.Mesh>
-	<T.LineSegments geometry={edges}>
-		<T.LineBasicMaterial color="#3a3a3a" />
-	</T.LineSegments>
+	{#key sizeKey}
+		{@const edges = new EdgesGeometry(new BoxGeometry(...size))}
+		<T.LineSegments geometry={edges}>
+			<T.LineBasicMaterial color="#3a3a3a" />
+		</T.LineSegments>
+	{/key}
 </T.Group>

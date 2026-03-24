@@ -6,12 +6,23 @@
 	import TopFrame from './TopFrame.svelte';
 	import Bracing from './Bracing.svelte';
 	import CenterSupports from './CenterSupports.svelte';
+	import Gussets from './Gussets.svelte';
 	import DimensionLabels from './DimensionLabels.svelte';
+	import CanvasCapture from './CanvasCapture.svelte';
+
+	interface Props {
+		onCaptureReady?: (capture: () => string | null) => void;
+	}
+
+	let { onCaptureReady }: Props = $props();
 
 	const cfg = $derived(tableStore.config);
-	const distance = $derived(Math.max(cfg.length, cfg.width, cfg.height) * 1.8);
-	const cameraPosition = $derived([distance * 0.7, distance * 0.5, distance * 0.7] as [number, number, number]);
-	const orbitTarget = $derived([0, cfg.height * 0.4, 0] as [number, number, number]);
+
+	// Initial camera position — computed once so orbit controls aren't reset on every change
+	const initCfg = tableStore.config;
+	const initDist = Math.max(initCfg.length, initCfg.width, initCfg.height) * 1.8;
+	const cameraPosition: [number, number, number] = [initDist * 0.7, initDist * 0.5, initDist * 0.7];
+	const orbitTarget: [number, number, number] = [0, initCfg.height * 0.4, 0];
 </script>
 
 <Canvas>
@@ -29,5 +40,7 @@
 	<TopFrame />
 	<Bracing />
 	<CenterSupports />
+	<Gussets />
 	<DimensionLabels />
+	<CanvasCapture onReady={onCaptureReady} />
 </Canvas>

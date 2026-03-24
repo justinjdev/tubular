@@ -2,7 +2,7 @@ import type { TableConfig, Side, TubeProfile } from '$lib/stores/table.svelte';
 import type { StockType } from '$lib/data/tubing-presets';
 
 export interface CutListItem {
-	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Center Support' | 'Shelf Frame';
+	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Center Support' | 'Gusset' | 'Shelf Frame';
 	description: string;
 	tubeLabel: string;
 	stockType: StockType;
@@ -118,6 +118,23 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			thickness: frameTube.thickness,
 			length: config.width - legTube.width * 2,
 			quantity: config.centerSupports
+		});
+	}
+
+	// Gussets — triangular plates at each leg-to-frame joint
+	// Cut from flat bar stock as right triangles (hypotenuse = gussetSize * sqrt(2))
+	if (config.gussets) {
+		// 4 corners × 2 gussets per corner (one on each face of the leg)
+		items.push({
+			group: 'Gusset',
+			description: 'Corner Gusset Plate',
+			tubeLabel: `${config.gussetSize}" × ${config.gussetThickness}" plate`,
+			stockType: 'flat-bar',
+			width: config.gussetSize,
+			height: config.gussetSize,
+			thickness: config.gussetThickness,
+			length: config.gussetSize, // square blank before trimming to triangle
+			quantity: 8
 		});
 	}
 

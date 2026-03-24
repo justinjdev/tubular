@@ -14,6 +14,7 @@
 
 	type Tab = 'design' | 'fabrication';
 	let activeTab = $state<Tab>('design');
+	let captureScene: (() => string | null) | undefined = $state();
 </script>
 
 <div class="flex h-screen w-screen bg-neutral-900 text-white">
@@ -72,12 +73,12 @@
 				<CutList />
 				<MaterialsSummary />
 				<StockNesting />
-				<ExportButtons />
+				<ExportButtons {captureScene} />
 			{/if}
 		</div>
 	</aside>
 
 	<main class="flex-1">
-		<TableScene />
+		<TableScene onCaptureReady={(fn) => (captureScene = fn)} />
 	</main>
 </div>
