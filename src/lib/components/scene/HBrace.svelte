@@ -14,7 +14,7 @@
 	const bh = $derived(cfg.braceTube.height);
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
-	const braceY = $derived(cfg.braceHeight);
+	const braceY = $derived(cfg.braceBottom + cfg.braceSpan);
 
 	// Compute position and span based on which side
 	const halfLength = $derived(cfg.length / 2 - legW / 2);

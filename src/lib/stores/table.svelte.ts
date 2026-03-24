@@ -15,8 +15,8 @@ export interface TableConfig {
 	frameTube: TubeProfile;
 	braceTube: TubeProfile;
 	bracing: Record<Side, BraceType>;
-	braceHeight: number;
-	braceBottomHeight: number;
+	braceBottom: number;
+	braceSpan: number;
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -35,8 +35,8 @@ export const DEFAULT_CONFIG: TableConfig = {
 	frameTube: defaultTube(2, 2, 0.075),
 	braceTube: defaultTube(1, 1, 0.075),
 	bracing: { front: 'none', back: 'none', left: 'none', right: 'none' },
-	braceHeight: 8,
-	braceBottomHeight: 0,
+	braceBottom: 0,
+	braceSpan: 8,
 	shelfFrame: false,
 	metric: false
 };
@@ -55,8 +55,11 @@ function createTableStore() {
 		updateDimension(key: 'length' | 'width' | 'height', value: number) {
 			const clamped = Math.max(12, Math.min(120, value));
 			config = { ...config, [key]: clamped };
-			if (key === 'height' && config.braceHeight >= clamped) {
-				config = { ...config, braceHeight: clamped - 1 };
+			if (key === 'height') {
+				const maxSpan = clamped - config.braceBottom - 1;
+				if (config.braceSpan > maxSpan) {
+					config = { ...config, braceSpan: Math.max(1, maxSpan) };
+				}
 			}
 		},
 
@@ -71,14 +74,16 @@ function createTableStore() {
 			};
 		},
 
-		updateBraceHeight(value: number) {
-			const clamped = Math.max(config.braceBottomHeight + 1, Math.min(config.height - 1, value));
-			config = { ...config, braceHeight: clamped };
+		updateBraceBottom(value: number) {
+			const maxBottom = config.height - config.braceSpan - 1;
+			const clamped = Math.max(0, Math.min(maxBottom, value));
+			config = { ...config, braceBottom: clamped };
 		},
 
-		updateBraceBottomHeight(value: number) {
-			const clamped = Math.max(0, Math.min(config.braceHeight - 1, value));
-			config = { ...config, braceBottomHeight: clamped };
+		updateBraceSpan(value: number) {
+			const maxSpan = config.height - config.braceBottom - 1;
+			const clamped = Math.max(1, Math.min(maxSpan, value));
+			config = { ...config, braceSpan: clamped };
 		},
 
 		toggleShelfFrame() {

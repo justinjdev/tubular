@@ -60,22 +60,22 @@ describe('computeCutList', () => {
 		expect(xBrace).toBeDefined();
 		expect(xBrace!.quantity).toBe(2);
 		// left is short side: span = width 30 - legTube.height 2 * 2 = 26
-		// diagonal = sqrt(26^2 + 8^2) = sqrt(676 + 64) = sqrt(740)
+		// braceSpan = 8, diagonal = sqrt(26^2 + 8^2) = sqrt(740)
 		expect(xBrace!.length).toBeCloseTo(Math.sqrt(740), 6);
 	});
 
-	it('computes X-brace with non-zero bottom height', () => {
+	it('computes X-brace with custom braceSpan', () => {
 		const config = cfg({
 			bracing: { front: 'none', back: 'none', left: 'x-brace', right: 'none' },
-			braceHeight: 10,
-			braceBottomHeight: 4
+			braceBottom: 4,
+			braceSpan: 6
 		});
 		const items = computeCutList(config);
 		const xBrace = items.find(
 			(i) => i.group === 'Bracing' && i.description.includes('X-Brace')
 		);
 		expect(xBrace).toBeDefined();
-		// verticalSpan = 10 - 4 = 6, span = 26
+		// braceSpan = 6, span = 26
 		// diagonal = sqrt(26^2 + 6^2) = sqrt(676 + 36) = sqrt(712)
 		expect(xBrace!.length).toBeCloseTo(Math.sqrt(712), 6);
 	});

@@ -105,39 +105,39 @@
 		<span class="text-sm text-neutral-300">Shelf frame</span>
 	</label>
 
-	<!-- Brace top height slider -->
+	<!-- Brace bottom (off floor) -->
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<label for="brace-height" class="text-xs text-neutral-500">Brace Top Height</label>
-			<span class="text-xs text-neutral-400">{config.braceHeight}"</span>
-		</div>
-		<input
-			id="brace-height"
-			type="range"
-			class="accent-amber-500"
-			min={config.braceBottomHeight + 1}
-			max={config.height - 1}
-			step={0.5}
-			value={config.braceHeight}
-			oninput={(e) => tableStore.updateBraceHeight(parseFloat((e.target as HTMLInputElement).value))}
-		/>
-	</div>
-
-	<!-- Brace bottom height slider -->
-	<div class="flex flex-col gap-1.5">
-		<div class="flex items-center justify-between">
-			<label for="brace-bottom" class="text-xs text-neutral-500">Brace Bottom Height</label>
-			<span class="text-xs text-neutral-400">{config.braceBottomHeight}"</span>
+			<label for="brace-bottom" class="text-xs text-neutral-500">Brace Bottom</label>
+			<span class="text-xs text-neutral-400">{config.braceBottom}" from floor</span>
 		</div>
 		<input
 			id="brace-bottom"
 			type="range"
 			class="accent-amber-500"
 			min={0}
-			max={config.braceHeight - 1}
+			max={config.height - config.braceSpan - 1}
 			step={0.5}
-			value={config.braceBottomHeight}
-			oninput={(e) => tableStore.updateBraceBottomHeight(parseFloat((e.target as HTMLInputElement).value))}
+			value={config.braceBottom}
+			oninput={(e) => tableStore.updateBraceBottom(parseFloat((e.target as HTMLInputElement).value))}
+		/>
+	</div>
+
+	<!-- Brace height (span from bottom) -->
+	<div class="flex flex-col gap-1.5">
+		<div class="flex items-center justify-between">
+			<label for="brace-span" class="text-xs text-neutral-500">Brace Height</label>
+			<span class="text-xs text-neutral-400">{config.braceSpan}"</span>
+		</div>
+		<input
+			id="brace-span"
+			type="range"
+			class="accent-amber-500"
+			min={1}
+			max={config.height - config.braceBottom - 1}
+			step={0.5}
+			value={config.braceSpan}
+			oninput={(e) => tableStore.updateBraceSpan(parseFloat((e.target as HTMLInputElement).value))}
 		/>
 	</div>
 </section>

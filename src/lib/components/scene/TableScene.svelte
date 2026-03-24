@@ -11,8 +11,9 @@
 		<OrbitControls target={[0, 15, 0]} enableDamping />
 	</T.PerspectiveCamera>
 
-	<T.AmbientLight intensity={0.6} />
-	<T.DirectionalLight position={[50, 80, 50]} intensity={1.0} castShadow />
+	<T.AmbientLight intensity={1.5} />
+	<T.DirectionalLight position={[50, 80, 50]} intensity={2.5} />
+	<T.DirectionalLight position={[-30, 40, -20]} intensity={1.0} />
 
 	<Grid cellSize={1} sectionSize={12} infiniteGrid />
 

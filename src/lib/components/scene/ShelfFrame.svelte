@@ -7,7 +7,7 @@
 	const bh = $derived(cfg.braceTube.height);
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
-	const shelfY = $derived(cfg.braceHeight);
+	const shelfY = $derived(cfg.braceBottom + cfg.braceSpan);
 
 	const halfLength = $derived(cfg.length / 2 - legW / 2);
 	const halfWidth = $derived(cfg.width / 2 - legH / 2);
