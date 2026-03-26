@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { tableStore, type TubeProfile, type LegOrientation } from '$lib/stores/table.svelte';
+	import { tableStore, type TubeProfile, type LegOrientation, type MaterialGrade } from '$lib/stores/table.svelte';
 	import { ALL_PRESETS, TUBE_PRESETS, FLAT_BAR_PRESETS, ROUND_PRESETS, GAUGE_TO_THICKNESS, type StockType, type StockPreset } from '$lib/data/tubing-presets';
+	import { MATERIAL_GRADES } from '$lib/data/material-grades';
 
 	const config = $derived(tableStore.config);
+	const selectedGrade = $derived(MATERIAL_GRADES.find(g => g.grade === config.materialGrade) ?? MATERIAL_GRADES[0]);
 
 	type MemberKey = 'legTube' | 'frameTube' | 'braceTube';
 
@@ -86,6 +88,29 @@
 </script>
 
 <div class="flex flex-col gap-1">
+	<!-- Material Grade (global setting) -->
+	<div class="rounded border border-neutral-800 bg-neutral-900/50 p-3">
+		<div class="flex flex-col gap-1">
+			<label class="text-xs text-neutral-500" for="material-grade">Material Grade</label>
+			<select
+				id="material-grade"
+				class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+				value={config.materialGrade}
+				onchange={(e) => tableStore.updateMaterialGrade((e.target as HTMLSelectElement).value as MaterialGrade)}
+			>
+				{#each MATERIAL_GRADES as grade}
+					<option value={grade.grade}>{grade.name}</option>
+				{/each}
+			</select>
+		</div>
+		<div class="mt-2 flex flex-col gap-0.5">
+			<span class="text-[10px] text-neutral-500">{selectedGrade.description}</span>
+			<span class="text-[10px] text-neutral-500">Weldability: {selectedGrade.weldability}</span>
+			<span class="text-[10px] text-neutral-500">Filler: {selectedGrade.fillerWire}</span>
+			<span class="text-[10px] text-neutral-500">{selectedGrade.notes}</span>
+		</div>
+	</div>
+
 	{#each sections as sec}
 		{@const tube = config[sec.key]}
 		{@const isOpen = openSection === sec.key}

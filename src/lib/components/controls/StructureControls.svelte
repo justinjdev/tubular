@@ -1,7 +1,25 @@
 <script lang="ts">
-	import { tableStore, type GussetFace, type FeetType } from '$lib/stores/table.svelte';
+	import { tableStore, type GussetFace, type FeetType, type SurfaceFinish } from '$lib/stores/table.svelte';
 	import { inToDisplay, lengthUnit } from '$lib/utils/units';
 	import { toFraction } from '$lib/utils/fractions';
+
+	const finishOptions: { value: SurfaceFinish; label: string }[] = [
+		{ value: 'raw', label: 'Raw / Bare' },
+		{ value: 'oil-wax', label: 'Oil / Wax' },
+		{ value: 'paint', label: 'Paint' },
+		{ value: 'powder-coat', label: 'Powder Coat' },
+		{ value: 'galvanized', label: 'Galvanized (hot-dip)' },
+	];
+
+	const finishNote = $derived.by(() => {
+		if (config.surfaceFinish === 'powder-coat') {
+			return 'Adds ~2\u20135 mil per surface. Ground/masked surfaces needed for weld-prep areas.';
+		}
+		if (config.surfaceFinish === 'galvanized') {
+			return 'Hot-dip adds ~3\u20135 mil. All holes must be vented. Adds ~$2\u20134/lb to cost.';
+		}
+		return null;
+	});
 
 	const feetTypes: { value: FeetType; label: string }[] = [
 		{ value: 'none', label: 'None' },
@@ -25,6 +43,26 @@
 </script>
 
 <div class="flex flex-col gap-3">
+
+	<!-- Surface finish -->
+	<div class="flex flex-col gap-1.5">
+		<div class="flex items-center justify-between">
+			<label for="surface-finish" class="text-xs text-neutral-500">Surface Finish</label>
+		</div>
+		<select
+			id="surface-finish"
+			class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+			value={config.surfaceFinish}
+			onchange={(e) => tableStore.updateSurfaceFinish((e.target as HTMLSelectElement).value as SurfaceFinish)}
+		>
+			{#each finishOptions as opt}
+				<option value={opt.value}>{opt.label}</option>
+			{/each}
+		</select>
+		{#if finishNote}
+			<span class="text-[10px] text-neutral-500">{finishNote}</span>
+		{/if}
+	</div>
 
 	<!-- Shelf frame toggle -->
 	<label class="flex cursor-pointer items-center gap-2">

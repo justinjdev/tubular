@@ -5,6 +5,8 @@ export type Side = 'front' | 'back' | 'left' | 'right';
 export type Corner = 'front-left' | 'front-right' | 'back-left' | 'back-right';
 export type GussetFace = 'front' | 'back' | 'left' | 'right';
 export type FeetType = 'none' | 'leveling' | 'caster';
+export type SurfaceFinish = 'raw' | 'paint' | 'powder-coat' | 'galvanized' | 'oil-wax';
+export type MaterialGrade = 'A500' | 'A513' | 'A36' | 'DOM';
 
 export interface FeetConfig {
 	type: FeetType;
@@ -54,6 +56,8 @@ export interface TableConfig {
 	drawerBottomThickness: number; // bottom panel in inches
 	drawerSlideMount: 'angle-iron' | 'flat-bar' | 'hardwood'; // material for slide mounting rails
 	drawerSlideMountSize: string; // e.g. "1×1×1/8" for angle, "1×1/8" for flat bar
+	materialGrade: MaterialGrade;
+	surfaceFinish: SurfaceFinish;
 	shelfFrame: boolean;
 	metric: boolean;
 }
@@ -90,6 +94,8 @@ export const DEFAULT_CONFIG: TableConfig = {
 	drawerBottomThickness: 0.25,
 	drawerSlideMount: 'angle-iron' as const,
 	drawerSlideMountSize: '1×1×1/8',
+	materialGrade: 'A500',
+	surfaceFinish: 'raw',
 	shelfFrame: false,
 	metric: false
 };
@@ -290,6 +296,14 @@ function createTableStore() {
 
 		updateDrawerSlideMount(mount: 'angle-iron' | 'flat-bar' | 'hardwood', size: string) {
 			set({ drawerSlideMount: mount, drawerSlideMountSize: size });
+		},
+
+		updateMaterialGrade(value: MaterialGrade) {
+			set({ materialGrade: value });
+		},
+
+		updateSurfaceFinish(value: SurfaceFinish) {
+			set({ surfaceFinish: value });
 		},
 
 		toggleShelfFrame() {

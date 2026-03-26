@@ -186,6 +186,18 @@
       "description": "Dimensions of the slide mount material, e.g. '1×1×1/8' for angle iron, '1×1/8' for flat bar",
       "default": "1×1×1/8"
     },
+    "surfaceFinish": {
+      "type": "string",
+      "description": "Surface finish applied after fabrication. Powder coat and galvanized add measurable thickness.",
+      "enum": ["raw", "paint", "powder-coat", "galvanized", "oil-wax"],
+      "default": "raw"
+    },
+    "materialGrade": {
+      "type": "string",
+      "description": "Material grade specification for the steel stock",
+      "enum": ["A500", "A513", "A36", "DOM"],
+      "default": "A500"
+    },
     "shelfFrame": {
       "type": "boolean",
       "description": "Add a lower shelf frame (horizontal rails between legs at brace height)",

@@ -139,7 +139,7 @@
 	// Summaries for collapsed sections
 	const dimSummary = $derived(`${config.width} × ${config.depth} × ${config.height}"`);
 	const matSummary = $derived(
-		`${config.legTube.width}×${config.legTube.height} legs, ${config.frameTube.width}×${config.frameTube.height} frame`
+		`${config.materialGrade}, ${config.legTube.width}×${config.legTube.height} legs, ${config.frameTube.width}×${config.frameTube.height} frame`
 	);
 	const braceSummary = $derived.by(() => {
 		const sides = (['front', 'back', 'left', 'right'] as const)
@@ -149,6 +149,15 @@
 	});
 	const structSummary = $derived.by(() => {
 		const parts: string[] = [];
+		if (config.surfaceFinish !== 'raw') {
+			const labels: Record<string, string> = {
+				'paint': 'paint',
+				'powder-coat': 'powder coat',
+				'galvanized': 'galvanized',
+				'oil-wax': 'oil/wax',
+			};
+			parts.push(labels[config.surfaceFinish] ?? config.surfaceFinish);
+		}
 		if (config.shelfFrame) parts.push('shelf');
 		const gussetCount = Object.values(config.gussets).filter(Boolean).length;
 		if (gussetCount) parts.push(`${gussetCount}-side gussets`);
