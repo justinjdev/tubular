@@ -248,6 +248,49 @@ function createTableStore() {
 		reset() {
 			config = { ...DEFAULT_CONFIG };
 			saveConfig(config);
+		},
+
+		exportJSON(): string {
+			return JSON.stringify(config, null, 2);
+		},
+
+		exportBase64(): string {
+			return btoa(JSON.stringify(config));
+		},
+
+		importJSON(json: string): boolean {
+			try {
+				const parsed = JSON.parse(json);
+				if (typeof parsed !== 'object' || parsed === null) return false;
+				const merged = { ...DEFAULT_CONFIG, ...parsed };
+				// Migrate gusset formats
+				if (typeof merged.gussets === 'boolean') {
+					const all = merged.gussets;
+					merged.gussets = { front: all, back: all, left: all, right: all };
+				} else if (merged.gussets && 'front-left' in merged.gussets) {
+					const g = merged.gussets as Record<string, boolean>;
+					merged.gussets = {
+						front: g['front-left'] || g['front-right'] || false,
+						back: g['back-left'] || g['back-right'] || false,
+						left: g['front-left'] || g['back-left'] || false,
+						right: g['front-right'] || g['back-right'] || false,
+					};
+				}
+				config = merged;
+				saveConfig(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+
+		importBase64(encoded: string): boolean {
+			try {
+				const json = atob(encoded);
+				return this.importJSON(json);
+			} catch {
+				return false;
+			}
 		}
 	};
 }
