@@ -7,6 +7,16 @@ export type GussetFace = 'front' | 'back' | 'left' | 'right';
 export type FeetType = 'none' | 'leveling' | 'caster';
 export type SurfaceFinish = 'raw' | 'paint' | 'powder-coat' | 'galvanized' | 'oil-wax';
 export type MaterialGrade = 'A500' | 'A513' | 'A36' | 'DOM';
+export type TabletopMaterial = 'none' | 'steel-plate' | 'diamond-plate' | 'expanded-metal' | 'wood-butcher-block' | 'plywood' | 'mdf';
+
+export interface TabletopConfig {
+	material: TabletopMaterial;
+	thickness: number; // inches
+	overhangFront: number; // inches beyond frame
+	overhangBack: number;
+	overhangLeft: number;
+	overhangRight: number;
+}
 
 export interface FeetConfig {
 	type: FeetType;
@@ -48,6 +58,7 @@ export interface TableConfig {
 	gussetWidth: number; // horizontal leg of the right triangle, in inches
 	gussetHeight: number; // vertical leg of the right triangle, in inches
 	gussetThickness: number; // plate thickness in inches
+	tabletop: TabletopConfig;
 	drawers: BayDrawers[]; // one entry per bay (bays = centerSupports + 1)
 	drawerSlideGap: number; // clearance per side for slides (default 0.5")
 	drawerDepth: number; // drawer box depth in inches
@@ -82,6 +93,7 @@ export const DEFAULT_CONFIG: TableConfig = {
 	braceSpan: 8,
 	centerSupports: 0,
 	feet: { type: 'none', height: 0, threadSize: '3/8-16' },
+	tabletop: { material: 'none', thickness: 0.25, overhangFront: 1, overhangBack: 1, overhangLeft: 1, overhangRight: 1 },
 	gussets: { front: false, back: false, left: false, right: false },
 	gussetWidth: 3,
 	gussetHeight: 3,
@@ -308,6 +320,33 @@ function createTableStore() {
 
 		toggleShelfFrame() {
 			set({ shelfFrame: !config.shelfFrame });
+		},
+
+		updateTabletopMaterial(material: TabletopMaterial) {
+			const defaults: Record<TabletopMaterial, number> = {
+				'none': 0.25,
+				'steel-plate': 0.25,
+				'diamond-plate': 0.1875,
+				'expanded-metal': 0.75,
+				'wood-butcher-block': 1.75,
+				'plywood': 0.75,
+				'mdf': 0.75,
+			};
+			set({ tabletop: { ...config.tabletop, material, thickness: defaults[material] } });
+		},
+
+		updateTabletopThickness(value: number) {
+			set({ tabletop: { ...config.tabletop, thickness: Math.max(0.0625, Math.min(4, value)) } });
+		},
+
+		updateTabletopOverhang(side: 'front' | 'back' | 'left' | 'right', value: number) {
+			const key = ('overhang' + side.charAt(0).toUpperCase() + side.slice(1)) as keyof TabletopConfig;
+			set({ tabletop: { ...config.tabletop, [key]: Math.max(0, Math.min(6, value)) } });
+		},
+
+		updateTabletopOverhangAll(value: number) {
+			const clamped = Math.max(0, Math.min(6, value));
+			set({ tabletop: { ...config.tabletop, overhangFront: clamped, overhangBack: clamped, overhangLeft: clamped, overhangRight: clamped } });
 		},
 
 		toggleMetric() {

@@ -167,6 +167,61 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 		);
 	}
 
+	// Center supports in front view
+	if (config.centerSupports > 0) {
+		doc.setDrawColor(100);
+		doc.setLineWidth(0.4);
+		const innerW = sW - sLegW * 2;
+		for (let i = 1; i <= config.centerSupports; i++) {
+			const cx = frontX + sLegW + innerW * i / (config.centerSupports + 1);
+			doc.line(cx, frontY + sFrameH, cx, frontY + sH);
+		}
+		doc.setDrawColor(40);
+		doc.setLineWidth(0.8);
+	}
+
+	// Drawers in front view
+	{
+		const innerW = config.width - rLegW * 2;
+		const numBays = config.centerSupports + 1;
+		const bayWidth = innerW / numBays;
+		const slideGapScaled = config.drawerSlideGap * scale;
+		const drawerGap = 0.5 * scale; // 0.5" gap between drawers
+
+		for (let bayIdx = 0; bayIdx < numBays; bayIdx++) {
+			const bayDrawers = config.drawers[bayIdx]?.drawers ?? [];
+			if (bayDrawers.length === 0) continue;
+
+			const bayLeft = frontX + sLegW + bayIdx * bayWidth * scale;
+			const drawerW = bayWidth * scale - slideGapScaled * 2;
+			const drawerX = bayLeft + slideGapScaled;
+
+			let drawerTop = frontY + sFrameH;
+
+			for (const d of bayDrawers) {
+				const drawerH = d.height * scale;
+
+				// Drawer box fill
+				doc.setFillColor(60, 70, 80);
+				doc.setDrawColor(40);
+				doc.setLineWidth(0.5);
+				doc.rect(drawerX, drawerTop, drawerW, drawerH, 'FD');
+
+				// Handle line (centered horizontal dash)
+				const handleW = Math.min(drawerW * 0.3, 20);
+				const handleX = drawerX + (drawerW - handleW) / 2;
+				const handleY = drawerTop + drawerH / 2;
+				doc.setDrawColor(160);
+				doc.setLineWidth(1);
+				doc.line(handleX, handleY, handleX + handleW, handleY);
+
+				drawerTop += drawerH + drawerGap;
+			}
+		}
+		doc.setDrawColor(40);
+		doc.setLineWidth(0.8);
+	}
+
 	// Dimensions — width (horizontal below)
 	drawDim(doc, frontX, frontY + sH + sFoot, frontX + sW, frontY + sH + sFoot, dimLabel(config.width, m), 14, 'h');
 	// Dimensions — frame height (vertical right)
@@ -234,6 +289,41 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 		);
 	}
 
+	// Drawers in side view (dashed rectangle showing drawer depth)
+	{
+		const hasDrawers = config.drawers.some(b => b?.drawers?.length > 0);
+		if (hasDrawers) {
+			const sDrawerDepth = config.drawerDepth * scale;
+			const sInset = config.drawerFrontInset * scale;
+			// From front leg inner edge, inset by drawerFrontInset
+			const drawerLeft = sideX + sLegH + sInset;
+
+			// Find total drawer stack height from the tallest bay
+			const numBays = config.centerSupports + 1;
+			let maxStackH = 0;
+			for (let bayIdx = 0; bayIdx < numBays; bayIdx++) {
+				const bayDrawers = config.drawers[bayIdx]?.drawers ?? [];
+				let stackH = 0;
+				for (let di = 0; di < bayDrawers.length; di++) {
+					stackH += bayDrawers[di].height;
+					if (di < bayDrawers.length - 1) stackH += 0.5; // gap
+				}
+				maxStackH = Math.max(maxStackH, stackH);
+			}
+
+			const sStackH = maxStackH * scale;
+			const drawerTop = sideY + sFrameH;
+
+			doc.setLineDashPattern([2, 2], 0);
+			doc.setDrawColor(80);
+			doc.setLineWidth(0.5);
+			doc.rect(drawerLeft, drawerTop, sDrawerDepth, sStackH);
+			doc.setLineDashPattern([], 0);
+			doc.setDrawColor(40);
+			doc.setLineWidth(0.8);
+		}
+	}
+
 	// Dimensions — depth
 	drawDim(doc, sideX, sideY + sH + sFoot, sideX + sD, sideY + sH + sFoot, dimLabel(config.depth, m), 14, 'h');
 	// Dimensions — frame height
@@ -266,6 +356,35 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 		for (let i = 1; i <= config.centerSupports; i++) {
 			const cx = topX + sLegW + (sW - sLegW * 2) * i / (config.centerSupports + 1);
 			doc.line(cx, topY + sLegH, cx, topY + sD - sLegH);
+		}
+		doc.setDrawColor(40);
+		doc.setLineWidth(0.8);
+	}
+
+	// Drawers in top view (dashed outlines within each bay)
+	{
+		const innerW = config.width - rLegW * 2;
+		const numBays = config.centerSupports + 1;
+		const bayWidth = innerW / numBays;
+		const slideGapScaled = config.drawerSlideGap * scale;
+		const sDrawerDepth = config.drawerDepth * scale;
+		const sInset = config.drawerFrontInset * scale;
+
+		for (let bayIdx = 0; bayIdx < numBays; bayIdx++) {
+			const bayDrawers = config.drawers[bayIdx]?.drawers ?? [];
+			if (bayDrawers.length === 0) continue;
+
+			const bayLeft = topX + sLegW + bayIdx * bayWidth * scale;
+			const drawerW = bayWidth * scale - slideGapScaled * 2;
+			const drawerX = bayLeft + slideGapScaled;
+			// Drawer depth from front edge (top of top view = front)
+			const drawerY = topY + sLegH + sInset;
+
+			doc.setLineDashPattern([2, 2], 0);
+			doc.setDrawColor(80);
+			doc.setLineWidth(0.5);
+			doc.rect(drawerX, drawerY, drawerW, sDrawerDepth);
+			doc.setLineDashPattern([], 0);
 		}
 		doc.setDrawColor(40);
 		doc.setLineWidth(0.8);

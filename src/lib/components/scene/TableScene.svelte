@@ -8,6 +8,7 @@
 	import CenterSupports from './CenterSupports.svelte';
 	import Gussets from './Gussets.svelte';
 	import Drawers from './Drawers.svelte';
+	import Tabletop from './Tabletop.svelte';
 	import DimensionLabels from './DimensionLabels.svelte';
 	import CanvasCapture from './CanvasCapture.svelte';
 
@@ -43,6 +44,7 @@
 	<CenterSupports />
 	<Gussets />
 	<Drawers />
+	<Tabletop />
 	<DimensionLabels />
 	<CanvasCapture onReady={onCaptureReady} />
 </Canvas>

@@ -3,7 +3,7 @@ import { resolvedLegDimensions } from '$lib/stores/table.svelte';
 import type { StockType } from '$lib/data/tubing-presets';
 
 export interface CutListItem {
-	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Center Support' | 'Gusset' | 'Shelf Frame';
+	group: 'Top Frame' | 'Legs' | 'Bracing' | 'Center Support' | 'Gusset' | 'Shelf Frame' | 'Tabletop';
 	description: string;
 	tubeLabel: string;
 	stockType: StockType;
@@ -12,6 +12,8 @@ export interface CutListItem {
 	thickness: number;
 	length: number;
 	quantity: number;
+	/** Override density in lb/ft^3 (defaults to steel: 490) */
+	density?: number;
 }
 
 function stockLabel(p: TubeProfile): string {
@@ -177,6 +179,41 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			thickness: braceTube.thickness,
 			length: config.depth - legH * 2,
 			quantity: 2
+		});
+	}
+
+	// Tabletop
+	if (config.tabletop.material !== 'none') {
+		const top = config.tabletop;
+		const topWidth = config.width + top.overhangLeft + top.overhangRight;
+		const topDepth = config.depth + top.overhangFront + top.overhangBack;
+		const materialLabels: Record<string, string> = {
+			'steel-plate': 'Steel Plate',
+			'diamond-plate': 'Diamond Plate',
+			'expanded-metal': 'Expanded Metal',
+			'wood-butcher-block': 'Butcher Block',
+			'plywood': 'Plywood',
+			'mdf': 'MDF',
+		};
+		const densityMap: Record<string, number> = {
+			'steel-plate': 490,
+			'diamond-plate': 490,
+			'expanded-metal': 294,
+			'wood-butcher-block': 45,
+			'plywood': 35,
+			'mdf': 48,
+		};
+		items.push({
+			group: 'Tabletop',
+			description: materialLabels[top.material] ?? top.material,
+			tubeLabel: `${topWidth}" \u00d7 ${topDepth}" \u00d7 ${top.thickness}" ${materialLabels[top.material]?.toLowerCase() ?? top.material}`,
+			stockType: 'flat-bar',
+			width: topWidth,
+			height: top.thickness,
+			thickness: top.thickness,
+			length: topDepth,
+			quantity: 1,
+			density: densityMap[top.material]
 		});
 	}
 

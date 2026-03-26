@@ -7,6 +7,7 @@
 	import TubingControls from '$lib/components/controls/TubingControls.svelte';
 	import BracingControls from '$lib/components/controls/BracingControls.svelte';
 	import StructureControls from '$lib/components/controls/StructureControls.svelte';
+	import TabletopControls from '$lib/components/controls/TabletopControls.svelte';
 	import DrawerControls from '$lib/components/controls/DrawerControls.svelte';
 	import CutList from '$lib/components/output/CutList.svelte';
 	import DrawerList from '$lib/components/output/DrawerList.svelte';
@@ -129,7 +130,7 @@
 	let captureScene: (() => string | null) | undefined = $state();
 
 	// Accordion state — only one section open at a time
-	type Section = 'dims' | 'materials' | 'bracing' | 'structure' | 'drawers';
+	type Section = 'dims' | 'tabletop' | 'materials' | 'bracing' | 'structure' | 'drawers';
 	let openSection = $state<Section>('dims');
 
 	function toggle(s: Section) {
@@ -138,6 +139,18 @@
 
 	// Summaries for collapsed sections
 	const dimSummary = $derived(`${config.width} × ${config.depth} × ${config.height}"`);
+	const tabletopSummary = $derived.by(() => {
+		if (config.tabletop.material === 'none') return 'none';
+		const labels: Record<string, string> = {
+			'steel-plate': 'Steel plate',
+			'diamond-plate': 'Diamond plate',
+			'expanded-metal': 'Expanded metal',
+			'wood-butcher-block': 'Butcher block',
+			'plywood': 'Plywood',
+			'mdf': 'MDF',
+		};
+		return `${labels[config.tabletop.material] ?? config.tabletop.material}, ${toFraction(config.tabletop.thickness)}"`;
+	});
 	const matSummary = $derived(
 		`${config.materialGrade}, ${config.legTube.width}×${config.legTube.height} legs, ${config.frameTube.width}×${config.frameTube.height} frame`
 	);
@@ -344,6 +357,15 @@
 					onToggle={() => toggle('dims')}
 				>
 					<DimensionControls />
+				</AccordionSection>
+
+				<AccordionSection
+					title="Tabletop"
+					summary={tabletopSummary}
+					open={openSection === 'tabletop'}
+					onToggle={() => toggle('tabletop')}
+				>
+					<TabletopControls />
 				</AccordionSection>
 
 				<AccordionSection

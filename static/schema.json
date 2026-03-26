@@ -198,6 +198,54 @@
       "enum": ["A500", "A513", "A36", "DOM"],
       "default": "A500"
     },
+    "tabletop": {
+      "type": "object",
+      "description": "Tabletop configuration — material, thickness, and overhang on each side.",
+      "properties": {
+        "material": {
+          "type": "string",
+          "enum": ["none", "steel-plate", "diamond-plate", "expanded-metal", "wood-butcher-block", "plywood", "mdf"],
+          "description": "Tabletop material type",
+          "default": "none"
+        },
+        "thickness": {
+          "type": "number",
+          "description": "Tabletop thickness in inches",
+          "minimum": 0.0625,
+          "maximum": 4,
+          "default": 0.25
+        },
+        "overhangFront": {
+          "type": "number",
+          "description": "Overhang beyond the frame on the front side, in inches",
+          "minimum": 0,
+          "maximum": 6,
+          "default": 1
+        },
+        "overhangBack": {
+          "type": "number",
+          "description": "Overhang beyond the frame on the back side, in inches",
+          "minimum": 0,
+          "maximum": 6,
+          "default": 1
+        },
+        "overhangLeft": {
+          "type": "number",
+          "description": "Overhang beyond the frame on the left side, in inches",
+          "minimum": 0,
+          "maximum": 6,
+          "default": 1
+        },
+        "overhangRight": {
+          "type": "number",
+          "description": "Overhang beyond the frame on the right side, in inches",
+          "minimum": 0,
+          "maximum": 6,
+          "default": 1
+        }
+      },
+      "default": { "material": "none", "thickness": 0.25, "overhangFront": 1, "overhangBack": 1, "overhangLeft": 1, "overhangRight": 1 }
+    },
     "shelfFrame": {
       "type": "boolean",
       "description": "Add a lower shelf frame (horizontal rails between legs at brace height)",
