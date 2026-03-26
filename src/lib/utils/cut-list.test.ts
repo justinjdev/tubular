@@ -45,7 +45,7 @@ describe('computeCutList', () => {
 		);
 		expect(hBrace).toBeDefined();
 		expect(hBrace!.quantity).toBe(1);
-		// front is long side: length 60 - legTube.width 2 * 2 = 56
+		// front is long side: width 60 - legTube.width 2 * 2 = 56
 		expect(hBrace!.length).toBe(56);
 	});
 

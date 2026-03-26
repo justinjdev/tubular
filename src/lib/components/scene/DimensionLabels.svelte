@@ -14,23 +14,23 @@
 	};
 
 	// Position labels below the table, offset from edges
-	const halfLength = $derived(cfg.length / 2);
 	const halfWidth = $derived(cfg.width / 2);
+	const halfDepth = $derived(cfg.depth / 2);
 
-	// Length label: front edge midpoint, below table
-	const lengthPos = $derived([0, -2, halfWidth + 4] as [number, number, number]);
-	// Width label: right edge midpoint, below table
-	const widthPos = $derived([halfLength + 4, -2, 0] as [number, number, number]);
+	// Width label: front edge midpoint, below table
+	const widthPos = $derived([0, -2, halfDepth + 4] as [number, number, number]);
+	// Depth label: right edge midpoint, below table
+	const depthPos = $derived([halfWidth + 4, -2, 0] as [number, number, number]);
 	// Height label: right-front leg, beside it
-	const heightPos = $derived([halfLength + 4, cfg.height / 2, halfWidth + 4] as [number, number, number]);
+	const heightPos = $derived([halfWidth + 4, cfg.height / 2, halfDepth + 4] as [number, number, number]);
 </script>
-
-<HTML position={lengthPos} center pointerEvents="none">
-	<div class="dim-label">L: {fmt(cfg.length)}</div>
-</HTML>
 
 <HTML position={widthPos} center pointerEvents="none">
 	<div class="dim-label">W: {fmt(cfg.width)}</div>
+</HTML>
+
+<HTML position={depthPos} center pointerEvents="none">
+	<div class="dim-label">D: {fmt(cfg.depth)}</div>
 </HTML>
 
 <HTML position={heightPos} center pointerEvents="none">

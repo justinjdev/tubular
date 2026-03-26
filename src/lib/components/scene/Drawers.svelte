@@ -13,13 +13,13 @@
 	const frameBottom = $derived(cfg.footAllowance + legHeight);
 
 	const boxWidth = $derived.by(() => {
-		const innerLength = cfg.length - legW * 2;
+		const innerWidth = cfg.width - legW * 2;
 		const numBays = cfg.centerSupports + 1;
-		return innerLength / numBays - cfg.drawerSlideGap * 2;
+		return innerWidth / numBays - cfg.drawerSlideGap * 2;
 	});
 	const boxDepth = $derived(cfg.drawerDepth);
 
-	const frontLegOuter = $derived(cfg.width / 2);
+	const frontLegOuter = $derived(cfg.depth / 2);
 	const drawerFrontEdge = $derived(frontLegOuter - cfg.drawerFrontInset);
 	const zCenter = $derived(drawerFrontEdge - boxDepth / 2);
 
@@ -58,14 +58,14 @@
 
 	// Horizontal slide rails: run front-to-back (along Z) spanning full gap between legs
 	// One pair per drawer (left and right side of bay)
-	const railSpan = $derived(cfg.width - legH * 2); // full inner span between front/back legs
+	const railSpan = $derived(cfg.depth - legH * 2); // full inner span between front/back legs
 	const railZCenter = $derived(0); // centered between legs
 
 	const slideRails = $derived.by<SlideRail[]>(() => {
 		const result: SlideRail[] = [];
-		const innerLength = cfg.length - legW * 2;
+		const innerWidth = cfg.width - legW * 2;
 		const numBays = cfg.centerSupports + 1;
-		const bayW = innerLength / numBays;
+		const bayW = innerWidth / numBays;
 
 		for (const bay of bays) {
 			const bayDrawers = cfg.drawers[bay.bayIndex]?.drawers ?? [];

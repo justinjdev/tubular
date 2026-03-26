@@ -104,7 +104,7 @@
 	}
 
 	// Summaries for collapsed sections
-	const dimSummary = $derived(`${config.length} × ${config.width} × ${config.height}"`);
+	const dimSummary = $derived(`${config.width} × ${config.depth} × ${config.height}"`);
 	const matSummary = $derived(
 		`${config.legTube.width}×${config.legTube.height} legs, ${config.frameTube.width}×${config.frameTube.height} frame`
 	);

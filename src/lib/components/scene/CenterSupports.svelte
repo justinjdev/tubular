@@ -12,16 +12,16 @@
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
 
-	// Cross members run along Z (width), same length as short rails
-	const crossLength = $derived(cfg.width - legW * 2);
+	// Cross members run along Z (depth), same length as short rails
+	const crossLength = $derived(cfg.depth - legW * 2);
 
 	// Evenly space along X between the two short rails
-	const halfLength = $derived(cfg.length / 2 - legW / 2);
+	const halfWidth = $derived(cfg.width / 2 - legW / 2);
 	const positions = $derived(() => {
 		const result: number[] = [];
 		for (let i = 1; i <= count; i++) {
-			// Evenly divide the span between -halfLength and +halfLength
-			const x = -halfLength + (2 * halfLength * i) / (count + 1);
+			// Evenly divide the span between -halfWidth and +halfWidth
+			const x = -halfWidth + (2 * halfWidth * i) / (count + 1);
 			result.push(x);
 		}
 		return result;

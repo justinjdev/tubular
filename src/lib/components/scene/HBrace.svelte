@@ -19,23 +19,23 @@
 	const braceY = $derived(cfg.braceBottom + cfg.braceSpan);
 
 	// Compute position and span based on which side
-	const halfLength = $derived(cfg.length / 2 - legW / 2);
-	const halfWidth = $derived(cfg.width / 2 - legH / 2);
+	const halfWidth = $derived(cfg.width / 2 - legW / 2);
+	const halfDepth = $derived(cfg.depth / 2 - legH / 2);
 
 	// Span between legs minus tube width for fitment
-	const longSpan = $derived(cfg.length - legW * 2);
-	const shortSpan = $derived(cfg.width - legH * 2);
+	const longSpan = $derived(cfg.width - legW * 2);
+	const shortSpan = $derived(cfg.depth - legH * 2);
 
 	const position = $derived((): [number, number, number] => {
 		switch (side) {
 			case 'front':
-				return [0, braceY, halfWidth];
+				return [0, braceY, halfDepth];
 			case 'back':
-				return [0, braceY, -halfWidth];
+				return [0, braceY, -halfDepth];
 			case 'left':
-				return [-halfLength, braceY, 0];
+				return [-halfWidth, braceY, 0];
 			case 'right':
-				return [halfLength, braceY, 0];
+				return [halfWidth, braceY, 0];
 		}
 	});
 

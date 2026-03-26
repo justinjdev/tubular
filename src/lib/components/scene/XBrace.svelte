@@ -19,11 +19,11 @@
 	const braceBot = $derived(cfg.braceBottom);
 	const braceSpan = $derived(cfg.braceSpan);
 
-	const halfLength = $derived(cfg.length / 2 - legW / 2);
-	const halfWidth = $derived(cfg.width / 2 - legH / 2);
+	const halfWidth = $derived(cfg.width / 2 - legW / 2);
+	const halfDepth = $derived(cfg.depth / 2 - legH / 2);
 
-	const longSpan = $derived(cfg.length - legW * 2);
-	const shortSpan = $derived(cfg.width - legH * 2);
+	const longSpan = $derived(cfg.width - legW * 2);
+	const shortSpan = $derived(cfg.depth - legH * 2);
 
 	// Determine span and angle based on side orientation
 	const span = $derived(side === 'front' || side === 'back' ? longSpan : shortSpan);
@@ -36,31 +36,31 @@
 	const isFrontBack = $derived(side === 'front' || side === 'back');
 
 	// Offset each diagonal slightly in the depth axis to prevent z-fighting
-	const halfDepth = $derived(bDepth / 2);
+	const halfBraceDepth = $derived(bDepth / 2);
 
 	const center1 = $derived((): [number, number, number] => {
 		switch (side) {
 			case 'front':
-				return [0, centerY, halfWidth + halfDepth];
+				return [0, centerY, halfDepth + halfBraceDepth];
 			case 'back':
-				return [0, centerY, -halfWidth - halfDepth];
+				return [0, centerY, -halfDepth - halfBraceDepth];
 			case 'left':
-				return [-halfLength - halfDepth, centerY, 0];
+				return [-halfWidth - halfBraceDepth, centerY, 0];
 			case 'right':
-				return [halfLength + halfDepth, centerY, 0];
+				return [halfWidth + halfBraceDepth, centerY, 0];
 		}
 	});
 
 	const center2 = $derived((): [number, number, number] => {
 		switch (side) {
 			case 'front':
-				return [0, centerY, halfWidth - halfDepth];
+				return [0, centerY, halfDepth - halfBraceDepth];
 			case 'back':
-				return [0, centerY, -halfWidth + halfDepth];
+				return [0, centerY, -halfDepth + halfBraceDepth];
 			case 'left':
-				return [-halfLength + halfDepth, centerY, 0];
+				return [-halfWidth + halfBraceDepth, centerY, 0];
 			case 'right':
-				return [halfLength - halfDepth, centerY, 0];
+				return [halfWidth - halfBraceDepth, centerY, 0];
 		}
 	});
 

@@ -73,11 +73,11 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	const pageWidth = doc.internal.pageSize.getWidth();
 
 	// Scale factor: fit largest dimension into ~150pt
-	const maxDim = Math.max(config.length, config.width, config.height);
+	const maxDim = Math.max(config.width, config.depth, config.height);
 	const scale = 140 / maxDim;
 
-	const sL = config.length * scale;
 	const sW = config.width * scale;
+	const sD = config.depth * scale;
 	const sH = config.height * scale;
 	const sLegW = config.legTube.width * scale;
 	const sLegH = config.legTube.height * scale;
@@ -91,29 +91,29 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	doc.text('Orthographic Views', 40, y);
 	y += 16;
 
-	// --- Front View (looking at the front, shows Length x Height) ---
+	// --- Front View (looking at the front, shows Width x Height) ---
 	const frontX = 60;
 	const frontY = y;
 
 	doc.setFontSize(8);
 	doc.setFont('helvetica', 'bold');
-	doc.text('Front', frontX + sL / 2, frontY - 4, { align: 'center' });
+	doc.text('Front', frontX + sW / 2, frontY - 4, { align: 'center' });
 
 	doc.setDrawColor(40);
 	doc.setLineWidth(0.8);
 	// Top frame rail
-	doc.rect(frontX, frontY, sL, sFrameH);
+	doc.rect(frontX, frontY, sW, sFrameH);
 	// Left leg
 	doc.rect(frontX, frontY + sFrameH, sLegW, sH - sFrameH - sFoot);
 	// Right leg
-	doc.rect(frontX + sL - sLegW, frontY + sFrameH, sLegW, sH - sFrameH - sFoot);
+	doc.rect(frontX + sW - sLegW, frontY + sFrameH, sLegW, sH - sFrameH - sFoot);
 
 	// Foot allowance dashes
 	if (sFoot > 1) {
 		doc.setLineDashPattern([2, 2], 0);
 		const legBottom = frontY + sH - sFoot;
 		doc.line(frontX, legBottom, frontX + sLegW, legBottom);
-		doc.line(frontX + sL - sLegW, legBottom, frontX + sL, legBottom);
+		doc.line(frontX + sW - sLegW, legBottom, frontX + sW, legBottom);
 		doc.setLineDashPattern([], 0);
 	}
 
@@ -121,7 +121,7 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	const braceType = config.bracing.front;
 	if (braceType !== 'none') {
 		const bLeft = frontX + sLegW;
-		const bRight = frontX + sL - sLegW;
+		const bRight = frontX + sW - sLegW;
 		const bTop = frontY + sH - sFoot - config.braceBottom * scale - config.braceSpan * scale;
 		const bBottom = frontY + sH - sFoot - config.braceBottom * scale;
 		doc.setDrawColor(120);
@@ -150,44 +150,44 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 		);
 		// Right leg gusset (left side, hanging down from frame)
 		doc.triangle(
-			frontX + sL - sLegW, frontY + sFrameH,
-			frontX + sL - sLegW - sGs, frontY + sFrameH,
-			frontX + sL - sLegW, frontY + sFrameH + sGs,
+			frontX + sW - sLegW, frontY + sFrameH,
+			frontX + sW - sLegW - sGs, frontY + sFrameH,
+			frontX + sW - sLegW, frontY + sFrameH + sGs,
 			'F'
 		);
 	}
 
-	// Dimensions — length (horizontal below)
-	drawDim(doc, frontX, frontY + sH, frontX + sL, frontY + sH, dimLabel(config.length, m), 14, 'h');
+	// Dimensions — width (horizontal below)
+	drawDim(doc, frontX, frontY + sH, frontX + sW, frontY + sH, dimLabel(config.width, m), 14, 'h');
 	// Dimensions — height (vertical right)
-	drawDim(doc, frontX + sL, frontY, frontX + sL, frontY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
+	drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
 	// Total height including foot
 	if (config.footAllowance > 0) {
-		drawDim(doc, frontX + sL, frontY, frontX + sL, frontY + sH, dimLabel(config.height, m), 28, 'v');
+		drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH, dimLabel(config.height, m), 28, 'v');
 	}
 
-	// --- Side View (looking at right side, shows Width x Height) ---
-	const sideX = frontX + sL + 60;
+	// --- Side View (looking at right side, shows Depth x Height) ---
+	const sideX = frontX + sW + 60;
 	const sideY = frontY;
 
 	doc.setFontSize(8);
 	doc.setFont('helvetica', 'bold');
-	doc.text('Side', sideX + sW / 2, sideY - 4, { align: 'center' });
+	doc.text('Side', sideX + sD / 2, sideY - 4, { align: 'center' });
 
 	doc.setDrawColor(40);
 	doc.setLineWidth(0.8);
 	// Top frame rail
-	doc.rect(sideX, sideY, sW, sFrameH);
+	doc.rect(sideX, sideY, sD, sFrameH);
 	// Left leg (front leg from side)
 	doc.rect(sideX, sideY + sFrameH, sLegH, sH - sFrameH - sFoot);
 	// Right leg (back leg from side)
-	doc.rect(sideX + sW - sLegH, sideY + sFrameH, sLegH, sH - sFrameH - sFoot);
+	doc.rect(sideX + sD - sLegH, sideY + sFrameH, sLegH, sH - sFrameH - sFoot);
 
 	// Bracing on right side
 	const sideBrace = config.bracing.right;
 	if (sideBrace !== 'none') {
 		const bLeft = sideX + sLegH;
-		const bRight = sideX + sW - sLegH;
+		const bRight = sideX + sD - sLegH;
 		const bTop = sideY + sH - sFoot - config.braceBottom * scale - config.braceSpan * scale;
 		const bBottom = sideY + sH - sFoot - config.braceBottom * scale;
 		doc.setDrawColor(120);
@@ -216,55 +216,55 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 		);
 		// Back leg gusset (inside)
 		doc.triangle(
-			sideX + sW - sLegH, sideY + sFrameH,
-			sideX + sW - sLegH - sGs, sideY + sFrameH,
-			sideX + sW - sLegH, sideY + sFrameH + sGs,
+			sideX + sD - sLegH, sideY + sFrameH,
+			sideX + sD - sLegH - sGs, sideY + sFrameH,
+			sideX + sD - sLegH, sideY + sFrameH + sGs,
 			'F'
 		);
 	}
 
-	// Dimensions — width
-	drawDim(doc, sideX, sideY + sH, sideX + sW, sideY + sH, dimLabel(config.width, m), 14, 'h');
+	// Dimensions — depth
+	drawDim(doc, sideX, sideY + sH, sideX + sD, sideY + sH, dimLabel(config.depth, m), 14, 'h');
 	// Dimensions — height
-	drawDim(doc, sideX + sW, sideY, sideX + sW, sideY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
+	drawDim(doc, sideX + sD, sideY, sideX + sD, sideY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
 
 	y = frontY + sH + 36;
 
-	// --- Top View (plan view, shows Length x Width) ---
+	// --- Top View (plan view, shows Width x Depth) ---
 	const topX = 60;
 	const topY = y;
 
 	doc.setFontSize(8);
 	doc.setFont('helvetica', 'bold');
-	doc.text('Top', topX + sL / 2, topY - 4, { align: 'center' });
+	doc.text('Top', topX + sW / 2, topY - 4, { align: 'center' });
 
 	doc.setDrawColor(40);
 	doc.setLineWidth(0.8);
 	// Outer frame
-	doc.rect(topX, topY, sL, sW);
+	doc.rect(topX, topY, sW, sD);
 	// Legs at corners
 	doc.rect(topX, topY, sLegW, sLegH);
-	doc.rect(topX + sL - sLegW, topY, sLegW, sLegH);
-	doc.rect(topX, topY + sW - sLegH, sLegW, sLegH);
-	doc.rect(topX + sL - sLegW, topY + sW - sLegH, sLegW, sLegH);
+	doc.rect(topX + sW - sLegW, topY, sLegW, sLegH);
+	doc.rect(topX, topY + sD - sLegH, sLegW, sLegH);
+	doc.rect(topX + sW - sLegW, topY + sD - sLegH, sLegW, sLegH);
 
 	// Center supports
 	if (config.centerSupports > 0) {
 		doc.setDrawColor(100);
 		doc.setLineWidth(0.4);
 		for (let i = 1; i <= config.centerSupports; i++) {
-			const cx = topX + sLegW + (sL - sLegW * 2) * i / (config.centerSupports + 1);
-			doc.line(cx, topY + sLegH, cx, topY + sW - sLegH);
+			const cx = topX + sLegW + (sW - sLegW * 2) * i / (config.centerSupports + 1);
+			doc.line(cx, topY + sLegH, cx, topY + sD - sLegH);
 		}
 		doc.setDrawColor(40);
 		doc.setLineWidth(0.8);
 	}
 
 	// Dimensions
-	drawDim(doc, topX, topY + sW, topX + sL, topY + sW, dimLabel(config.length, m), 14, 'h');
-	drawDim(doc, topX + sL, topY, topX + sL, topY + sW, dimLabel(config.width, m), 14, 'v');
+	drawDim(doc, topX, topY + sD, topX + sW, topY + sD, dimLabel(config.width, m), 14, 'h');
+	drawDim(doc, topX + sW, topY, topX + sW, topY + sD, dimLabel(config.depth, m), 14, 'v');
 
-	return topY + sW + 30;
+	return topY + sD + 30;
 }
 
 export function exportPDF(
@@ -289,7 +289,7 @@ export function exportPDF(
 	doc.setFontSize(10);
 	doc.setFont('helvetica', 'normal');
 	doc.text(
-		`Dimensions: ${inToDisplay(config.length, m)} ${lu} L × ${inToDisplay(config.width, m)} ${lu} W × ${inToDisplay(config.height, m)} ${lu} H`,
+		`Dimensions: ${inToDisplay(config.width, m)} ${lu} W × ${inToDisplay(config.depth, m)} ${lu} D × ${inToDisplay(config.height, m)} ${lu} H`,
 		40,
 		y
 	);

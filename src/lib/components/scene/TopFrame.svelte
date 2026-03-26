@@ -11,17 +11,17 @@
 	const fw = $derived(cfg.frameTube.width);
 	const fh = $derived(cfg.frameTube.height);
 
-	// Long rails run full table length along X
-	const halfWidth = $derived(cfg.width / 2 - legH / 2);
+	// Long rails run full table width along X
+	const halfDepth = $derived(cfg.depth / 2 - legH / 2);
 	// Short rails shortened by legTube.width at each end (butt joints)
-	const shortRailLength = $derived(cfg.width - legH * 2);
-	const halfLength = $derived(cfg.length / 2 - legW / 2);
+	const shortRailLen = $derived(cfg.depth - legH * 2);
+	const halfWidth = $derived(cfg.width / 2 - legW / 2);
 </script>
 
 <!-- Long rails (X-axis), front and back -->
-<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, halfWidth]} color="#a0b0c0" />
-<TubeMember size={[cfg.length, fh, fw]} position={[0, frameY, -halfWidth]} color="#a0b0c0" />
+<TubeMember size={[cfg.width, fh, fw]} position={[0, frameY, halfDepth]} color="#a0b0c0" />
+<TubeMember size={[cfg.width, fh, fw]} position={[0, frameY, -halfDepth]} color="#a0b0c0" />
 
 <!-- Short rails (Z-axis), left and right, shortened for butt joints -->
-<TubeMember size={[fw, fh, shortRailLength]} position={[halfLength, frameY, 0]} color="#a0b0c0" />
-<TubeMember size={[fw, fh, shortRailLength]} position={[-halfLength, frameY, 0]} color="#a0b0c0" />
+<TubeMember size={[fw, fh, shortRailLen]} position={[halfWidth, frameY, 0]} color="#a0b0c0" />
+<TubeMember size={[fw, fh, shortRailLen]} position={[-halfWidth, frameY, 0]} color="#a0b0c0" />

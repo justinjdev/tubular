@@ -21,8 +21,8 @@ export interface BayDrawers {
 }
 
 export interface TableConfig {
-	length: number;
 	width: number;
+	depth: number;
 	height: number;
 	legTube: TubeProfile;
 	frameTube: TubeProfile;
@@ -55,8 +55,8 @@ const defaultTube = (w: number, h: number, t: number, stockType: StockType = 'tu
 });
 
 export const DEFAULT_CONFIG: TableConfig = {
-	length: 60,
-	width: 30,
+	width: 60,
+	depth: 30,
 	height: 30,
 	legTube: defaultTube(2, 2, 0.075),
 	frameTube: defaultTube(2, 2, 0.075),
@@ -91,6 +91,14 @@ function loadConfig(): TableConfig {
 		const saved = JSON.parse(raw);
 		// Merge with defaults so new fields get default values
 		const merged = { ...DEFAULT_CONFIG, ...saved };
+		// Migrate old length/width → width/depth
+		if ('length' in saved && !('width' in saved)) {
+			merged.width = saved.length;
+		}
+		if ('length' in saved && 'width' in saved && !('depth' in saved)) {
+			merged.width = saved.length;
+			merged.depth = saved.width;
+		}
 		// Migrate old gusset formats to per-face
 		if (typeof merged.gussets === 'boolean') {
 			const all = merged.gussets;
@@ -133,7 +141,7 @@ function createTableStore() {
 			return config;
 		},
 
-		updateDimension(key: 'length' | 'width' | 'height', value: number) {
+		updateDimension(key: 'width' | 'depth' | 'height', value: number) {
 			const clamped = Math.max(12, Math.min(120, value));
 			set({ [key]: clamped });
 			if (key === 'height') {
@@ -263,6 +271,14 @@ function createTableStore() {
 				const parsed = JSON.parse(json);
 				if (typeof parsed !== 'object' || parsed === null) return false;
 				const merged = { ...DEFAULT_CONFIG, ...parsed };
+				// Migrate old length/width → width/depth
+				if ('length' in parsed && !('width' in parsed)) {
+					merged.width = parsed.length;
+				}
+				if ('length' in parsed && 'width' in parsed && !('depth' in parsed)) {
+					merged.width = parsed.length;
+					merged.depth = parsed.width;
+				}
 				// Migrate gusset formats
 				if (typeof merged.gussets === 'boolean') {
 					const all = merged.gussets;

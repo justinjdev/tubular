@@ -4,16 +4,16 @@
   "description": "Configuration for a welded steel tube table. All dimensions are in inches. Import this JSON into Tubular at https://justinjdev.github.io/tubular/ via the Share > Import panel, or append ?config=<base64> to the URL.",
   "type": "object",
   "properties": {
-    "length": {
+    "width": {
       "type": "number",
-      "description": "Table length (X-axis) in inches",
+      "description": "Table width (X-axis, left-to-right) in inches",
       "minimum": 12,
       "maximum": 120,
       "default": 60
     },
-    "width": {
+    "depth": {
       "type": "number",
-      "description": "Table width (Z-axis / depth) in inches",
+      "description": "Table depth (Z-axis, front-to-back) in inches",
       "minimum": 12,
       "maximum": 120,
       "default": 30

@@ -56,8 +56,8 @@ All values are in **inches**. Only include fields you want to override — omitt
 
 ```json
 {
-  "length": 31.5,
-  "width": 29.5,
+  "width": 31.5,
+  "depth": 29.5,
   "height": 28.375,
   "legTube": { "width": 1, "height": 1, "thickness": 0.125, "stockType": "tube" },
   "frameTube": { "width": 1, "height": 1, "thickness": 0.065, "stockType": "tube" },

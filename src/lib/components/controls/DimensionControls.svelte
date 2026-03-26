@@ -5,8 +5,8 @@
 	const config = $derived(tableStore.config);
 
 	const dims = [
-		{ key: 'length' as const, label: 'Length', axis: 'X' },
-		{ key: 'width' as const, label: 'Width', axis: 'Y' },
+		{ key: 'width' as const, label: 'Width', axis: 'X' },
+		{ key: 'depth' as const, label: 'Depth', axis: 'Y' },
 		{ key: 'height' as const, label: 'Height', axis: 'Z' }
 	];
 
@@ -22,12 +22,12 @@
 		return isNaN(v) ? 12 : v;
 	}
 
-	function handleChange(key: 'length' | 'width' | 'height', e: Event) {
+	function handleChange(key: 'width' | 'depth' | 'height', e: Event) {
 		const target = e.target as HTMLInputElement;
 		tableStore.updateDimension(key, parseInput(target.value));
 	}
 
-	function handleRange(key: 'length' | 'width' | 'height', e: Event) {
+	function handleRange(key: 'width' | 'depth' | 'height', e: Event) {
 		const target = e.target as HTMLInputElement;
 		tableStore.updateDimension(key, parseFloat(target.value));
 	}

@@ -12,8 +12,8 @@
 	const legHeight = $derived(cfg.height - cfg.frameTube.height - cfg.footAllowance);
 	const frameBottom = $derived(cfg.footAllowance + legHeight);
 
-	const halfL = $derived(cfg.length / 2 - legW / 2);
-	const halfW = $derived(cfg.width / 2 - legH / 2);
+	const halfW = $derived(cfg.width / 2 - legW / 2);
+	const halfD = $derived(cfg.depth / 2 - legH / 2);
 
 	interface GussetPlacement {
 		position: [number, number, number];
@@ -51,8 +51,8 @@
 		const result: GussetPlacement[] = [];
 
 		for (const c of cornerDefs) {
-			const legX = c.sX * halfL;
-			const legZ = c.sZ * halfW;
+			const legX = c.sX * halfW;
+			const legZ = c.sZ * halfD;
 
 			// X-face gusset (visible from front or back)
 			// Plate flush with outer Z edge of leg

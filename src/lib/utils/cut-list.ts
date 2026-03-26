@@ -37,7 +37,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		quantity: 4
 	});
 
-	// Top Frame - Long Rail: qty 2, full table length (X-axis)
+	// Top Frame - Long Rail: qty 2, full table width (X-axis)
 	items.push({
 		group: 'Top Frame',
 		description: 'Long Rail',
@@ -46,11 +46,11 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
-		length: config.length,
+		length: config.width,
 		quantity: 2
 	});
 
-	// Top Frame - Short Rail: qty 2, width minus two leg widths (butt joints)
+	// Top Frame - Short Rail: qty 2, depth minus two leg widths (butt joints)
 	items.push({
 		group: 'Top Frame',
 		description: 'Short Rail',
@@ -59,7 +59,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
-		length: config.width - legTube.width * 2,
+		length: config.depth - legTube.width * 2,
 		quantity: 2
 	});
 
@@ -70,11 +70,11 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		if (braceType === 'none') continue;
 
 		const isLongSide = side === 'front' || side === 'back';
-		// front/back span along length (X), minus leg width on each end
-		// left/right span along width (Y), minus leg height on each end
+		// front/back span along width (X), minus leg width on each end
+		// left/right span along depth (Z), minus leg height on each end
 		const span = isLongSide
-			? config.length - legTube.width * 2
-			: config.width - legTube.height * 2;
+			? config.width - legTube.width * 2
+			: config.depth - legTube.height * 2;
 
 		const sideLabel = side.charAt(0).toUpperCase() + side.slice(1);
 
@@ -116,7 +116,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: frameTube.width,
 			height: frameTube.height,
 			thickness: frameTube.thickness,
-			length: config.width - legTube.width * 2,
+			length: config.depth - legTube.width * 2,
 			quantity: config.centerSupports
 		});
 	}
@@ -148,7 +148,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
-			length: config.length - legTube.width * 2,
+			length: config.width - legTube.width * 2,
 			quantity: 2
 		});
 		items.push({
@@ -159,7 +159,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
-			length: config.width - legTube.height * 2,
+			length: config.depth - legTube.height * 2,
 			quantity: 2
 		});
 	}

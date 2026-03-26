@@ -56,10 +56,10 @@ function nearestSlideLength(depth: number): number {
  */
 export function computeBays(config: TableConfig): DrawerBayInfo[] {
 	const legW = config.legTube.width;
-	const innerLength = config.length - legW * 2; // space between legs along X
+	const innerWidth = config.width - legW * 2; // space between legs along X
 	const numBays = config.centerSupports + 1;
-	const bayWidth = innerLength / numBays;
-	const startX = -config.length / 2 + legW; // left inner edge
+	const bayWidth = innerWidth / numBays;
+	const startX = -config.width / 2 + legW; // left inner edge
 
 	const bays: DrawerBayInfo[] = [];
 	for (let i = 0; i < numBays; i++) {
@@ -80,9 +80,9 @@ export function computeDrawerCutList(config: TableConfig): DrawerCutList {
 
 	const legW = config.legTube.width;
 	const legH = config.legTube.height;
-	const innerLength = config.length - legW * 2;
+	const innerWidth = config.width - legW * 2;
 	const numBays = config.centerSupports + 1;
-	const bayWidth = innerLength / numBays;
+	const bayWidth = innerWidth / numBays;
 
 	const sideT = config.drawerSideThickness;
 	const bottomT = config.drawerBottomThickness;

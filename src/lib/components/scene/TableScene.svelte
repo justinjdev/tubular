@@ -21,7 +21,7 @@
 
 	// Initial camera position — computed once so orbit controls aren't reset on every change
 	const initCfg = tableStore.config;
-	const initDist = Math.max(initCfg.length, initCfg.width, initCfg.height) * 1.8;
+	const initDist = Math.max(initCfg.width, initCfg.depth, initCfg.height) * 1.8;
 	const cameraPosition: [number, number, number] = [initDist * 0.7, initDist * 0.5, initDist * 0.7];
 	const orbitTarget: [number, number, number] = [0, initCfg.height * 0.4, 0];
 </script>
