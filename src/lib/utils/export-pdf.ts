@@ -139,20 +139,21 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 
 	// Gussets in front view — triangles at inside top of each leg
 	if (Object.values(config.gussets).some(Boolean)) {
-		const sGs = config.gussetSize * scale;
+		const sGw = config.gussetWidth * scale;
+		const sGh = config.gussetHeight * scale;
 		doc.setFillColor(200, 170, 100);
 		// Left leg gusset (right side, hanging down from frame)
 		doc.triangle(
 			frontX + sLegW, frontY + sFrameH,
-			frontX + sLegW + sGs, frontY + sFrameH,
-			frontX + sLegW, frontY + sFrameH + sGs,
+			frontX + sLegW + sGw, frontY + sFrameH,
+			frontX + sLegW, frontY + sFrameH + sGh,
 			'F'
 		);
 		// Right leg gusset (left side, hanging down from frame)
 		doc.triangle(
 			frontX + sW - sLegW, frontY + sFrameH,
-			frontX + sW - sLegW - sGs, frontY + sFrameH,
-			frontX + sW - sLegW, frontY + sFrameH + sGs,
+			frontX + sW - sLegW - sGw, frontY + sFrameH,
+			frontX + sW - sLegW, frontY + sFrameH + sGh,
 			'F'
 		);
 	}
@@ -205,20 +206,21 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 
 	// Gussets in side view
 	if (Object.values(config.gussets).some(Boolean)) {
-		const sGs = config.gussetSize * scale;
+		const sGw = config.gussetWidth * scale;
+		const sGh = config.gussetHeight * scale;
 		doc.setFillColor(200, 170, 100);
 		// Front leg gusset (inside)
 		doc.triangle(
 			sideX + sLegH, sideY + sFrameH,
-			sideX + sLegH + sGs, sideY + sFrameH,
-			sideX + sLegH, sideY + sFrameH + sGs,
+			sideX + sLegH + sGw, sideY + sFrameH,
+			sideX + sLegH, sideY + sFrameH + sGh,
 			'F'
 		);
 		// Back leg gusset (inside)
 		doc.triangle(
 			sideX + sD - sLegH, sideY + sFrameH,
-			sideX + sD - sLegH - sGs, sideY + sFrameH,
-			sideX + sD - sLegH, sideY + sFrameH + sGs,
+			sideX + sD - sLegH - sGw, sideY + sFrameH,
+			sideX + sD - sLegH, sideY + sFrameH + sGh,
 			'F'
 		);
 	}

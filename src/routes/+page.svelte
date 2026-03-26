@@ -38,6 +38,39 @@
 	let importText = $state('');
 	let importError = $state<string | null>(null);
 
+	// Saved designs panel
+	let showDesignsPanel = $state(false);
+	let designName = $state('');
+	let savedDesigns = $state<string[]>(tableStore.listDesigns());
+
+	function refreshDesigns() {
+		savedDesigns = tableStore.listDesigns();
+	}
+
+	function handleSaveDesign() {
+		const name = designName.trim();
+		if (!name) return;
+		tableStore.saveDesign(name);
+		designName = '';
+		refreshDesigns();
+		importBanner = `Design "${name}" saved`;
+		setTimeout(() => (importBanner = null), 2000);
+	}
+
+	function handleLoadDesign(name: string) {
+		const ok = tableStore.loadDesign(name);
+		if (ok) {
+			importBanner = `Loaded "${name}"`;
+			setTimeout(() => (importBanner = null), 2000);
+			showDesignsPanel = false;
+		}
+	}
+
+	function handleDeleteDesign(name: string) {
+		tableStore.deleteDesign(name);
+		refreshDesigns();
+	}
+
 	function copyShareLink() {
 		const base = window.location.origin + window.location.pathname;
 		const url = `${base}?config=${tableStore.exportBase64()}`;
@@ -144,7 +177,13 @@
 				</button>
 				<button
 					class="rounded px-2 py-0.5 text-[10px] font-medium text-neutral-600 transition-colors hover:text-neutral-400"
-					onclick={() => (showShareModal = !showShareModal)}
+					onclick={() => { showDesignsPanel = !showDesignsPanel; showShareModal = false; }}
+				>
+					Designs
+				</button>
+				<button
+					class="rounded px-2 py-0.5 text-[10px] font-medium text-neutral-600 transition-colors hover:text-neutral-400"
+					onclick={() => { showShareModal = !showShareModal; showDesignsPanel = false; }}
 				>
 					Share
 				</button>
@@ -212,6 +251,57 @@
 						<input type="file" accept=".json" class="hidden" onchange={handleFileUpload} />
 					</label>
 				</div>
+			</div>
+		{/if}
+
+		<!-- Saved Designs panel -->
+		{#if showDesignsPanel}
+			<div class="border-b border-neutral-800 bg-neutral-850 px-5 py-3">
+				<div class="mb-2 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+					Save Current Design
+				</div>
+				<div class="flex gap-1.5">
+					<input
+						type="text"
+						class="flex-1 rounded bg-neutral-800 px-2 py-1.5 text-[11px] text-neutral-300 placeholder-neutral-600 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+						placeholder="Design name..."
+						bind:value={designName}
+						onkeydown={(e) => { if (e.key === 'Enter') handleSaveDesign(); }}
+					/>
+					<button
+						class="rounded bg-amber-600 px-3 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed"
+						onclick={handleSaveDesign}
+						disabled={!designName.trim()}
+					>
+						Save
+					</button>
+				</div>
+				<div class="mb-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+					Saved Designs
+				</div>
+				{#if savedDesigns.length === 0}
+					<div class="text-[11px] text-neutral-600">No saved designs</div>
+				{:else}
+					<div class="flex flex-col gap-1">
+						{#each savedDesigns as name}
+							<div class="flex items-center gap-1.5 rounded bg-neutral-800 px-2 py-1.5">
+								<span class="flex-1 truncate text-[11px] text-neutral-300">{name}</span>
+								<button
+									class="rounded px-2 py-0.5 text-[10px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
+									onclick={() => handleLoadDesign(name)}
+								>
+									Load
+								</button>
+								<button
+									class="rounded px-2 py-0.5 text-[10px] font-medium text-neutral-600 transition-colors hover:text-red-400"
+									onclick={() => handleDeleteDesign(name)}
+								>
+									Delete
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		{/if}
 

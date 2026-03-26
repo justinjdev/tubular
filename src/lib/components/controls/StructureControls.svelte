@@ -93,28 +93,53 @@
 	</div>
 
 	{#if anyGusset}
-		<!-- Gusset size -->
+		<!-- Gusset width -->
 		<div class="flex flex-col gap-1.5">
 			<div class="flex items-center justify-between">
-				<label for="gusset-size" class="text-xs text-neutral-500">Gusset Size</label>
+				<label for="gusset-width" class="text-xs text-neutral-500">Gusset width</label>
 				<div class="flex items-center gap-1">
 					<span class="text-xs text-neutral-400">
-						{inToDisplay(config.gussetSize, config.metric)} {lengthUnit(config.metric)}
+						{inToDisplay(config.gussetWidth, config.metric)} {lengthUnit(config.metric)}
 					</span>
 					{#if !config.metric}
-						<span class="text-[10px] text-neutral-500">({toFraction(config.gussetSize)}")</span>
+						<span class="text-[10px] text-neutral-500">({toFraction(config.gussetWidth)}")</span>
 					{/if}
 				</div>
 			</div>
 			<input
-				id="gusset-size"
+				id="gusset-width"
 				type="range"
 				class="accent-amber-500"
 				min={1}
 				max={8}
 				step={0.5}
-				value={config.gussetSize}
-				oninput={(e) => tableStore.updateGussetSize(parseFloat((e.target as HTMLInputElement).value))}
+				value={config.gussetWidth}
+				oninput={(e) => tableStore.updateGussetWidth(parseFloat((e.target as HTMLInputElement).value))}
+			/>
+		</div>
+
+		<!-- Gusset height -->
+		<div class="flex flex-col gap-1.5">
+			<div class="flex items-center justify-between">
+				<label for="gusset-height" class="text-xs text-neutral-500">Gusset height</label>
+				<div class="flex items-center gap-1">
+					<span class="text-xs text-neutral-400">
+						{inToDisplay(config.gussetHeight, config.metric)} {lengthUnit(config.metric)}
+					</span>
+					{#if !config.metric}
+						<span class="text-[10px] text-neutral-500">({toFraction(config.gussetHeight)}")</span>
+					{/if}
+				</div>
+			</div>
+			<input
+				id="gusset-height"
+				type="range"
+				class="accent-amber-500"
+				min={1}
+				max={8}
+				step={0.5}
+				value={config.gussetHeight}
+				oninput={(e) => tableStore.updateGussetHeight(parseFloat((e.target as HTMLInputElement).value))}
 			/>
 		</div>
 

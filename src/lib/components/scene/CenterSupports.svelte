@@ -12,6 +12,10 @@
 	const legW = $derived(cfg.legTube.width);
 	const legH = $derived(cfg.legTube.height);
 
+	// Vertical leg positioning (same as corner legs)
+	const yCenter = $derived(cfg.footAllowance + legHeight / 2);
+	const halfDepth = $derived(cfg.depth / 2 - legH / 2);
+
 	// Cross members run along Z (depth), same length as short rails
 	const crossLength = $derived(cfg.depth - legW * 2);
 
@@ -31,5 +35,8 @@
 {#if count > 0}
 	{#each positions() as x}
 		<TubeMember size={[fw, fh, crossLength]} position={[x, frameY, 0]} color="#a0b0c0" />
+		<!-- Vertical legs under each center support -->
+		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, halfDepth]} color="#7a8a9a" />
+		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, -halfDepth]} color="#7a8a9a" />
 	{/each}
 {/if}

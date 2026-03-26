@@ -33,7 +33,8 @@ export interface TableConfig {
 	centerSupports: number;
 	footAllowance: number;
 	gussets: Record<GussetFace, boolean>;
-	gussetSize: number; // leg length of the right triangle, in inches
+	gussetWidth: number; // horizontal leg of the right triangle, in inches
+	gussetHeight: number; // vertical leg of the right triangle, in inches
 	gussetThickness: number; // plate thickness in inches
 	drawers: BayDrawers[]; // one entry per bay (bays = centerSupports + 1)
 	drawerSlideGap: number; // clearance per side for slides (default 0.5")
@@ -67,7 +68,8 @@ export const DEFAULT_CONFIG: TableConfig = {
 	centerSupports: 0,
 	footAllowance: 0,
 	gussets: { front: false, back: false, left: false, right: false },
-	gussetSize: 3,
+	gussetWidth: 3,
+	gussetHeight: 3,
 	gussetThickness: 0.1875,
 	drawers: [],
 	drawerSlideGap: 0.5,
@@ -82,6 +84,7 @@ export const DEFAULT_CONFIG: TableConfig = {
 };
 
 const STORAGE_KEY = 'tubular-config';
+const SAVED_DESIGNS_KEY = 'tubular-saved-designs';
 
 function loadConfig(): TableConfig {
 	if (typeof localStorage === 'undefined') return { ...DEFAULT_CONFIG };
@@ -103,6 +106,12 @@ function loadConfig(): TableConfig {
 		if (merged.drawerBottomThickness < 0.1875) {
 			merged.drawerBottomThickness = 0.25;
 		}
+		// Migrate old gussetSize → gussetWidth/gussetHeight
+		if ('gussetSize' in saved && !('gussetWidth' in saved)) {
+			merged.gussetWidth = saved.gussetSize;
+			merged.gussetHeight = saved.gussetSize;
+		}
+		delete (merged as any).gussetSize;
 		// Migrate old gusset formats to per-face
 		if (typeof merged.gussets === 'boolean') {
 			const all = merged.gussets;
@@ -190,8 +199,12 @@ function createTableStore() {
 			set({ gussets: { front: enabled, back: enabled, left: enabled, right: enabled } });
 		},
 
-		updateGussetSize(value: number) {
-			set({ gussetSize: Math.max(1, Math.min(12, value)) });
+		updateGussetWidth(value: number) {
+			set({ gussetWidth: Math.max(1, Math.min(12, value)) });
+		},
+
+		updateGussetHeight(value: number) {
+			set({ gussetHeight: Math.max(1, Math.min(12, value)) });
 		},
 
 		updateGussetThickness(value: number) {
@@ -283,7 +296,13 @@ function createTableStore() {
 					merged.width = parsed.length;
 					merged.depth = parsed.width;
 				}
-				// Migrate gusset formats
+				// Migrate old gussetSize → gussetWidth/gussetHeight
+			if ('gussetSize' in parsed && !('gussetWidth' in parsed)) {
+				merged.gussetWidth = parsed.gussetSize;
+				merged.gussetHeight = parsed.gussetSize;
+			}
+			delete (merged as any).gussetSize;
+			// Migrate gusset formats
 				if (typeof merged.gussets === 'boolean') {
 					const all = merged.gussets;
 					merged.gussets = { front: all, back: all, left: all, right: all };
@@ -310,6 +329,59 @@ function createTableStore() {
 				return this.importJSON(json);
 			} catch {
 				return false;
+			}
+		},
+
+		saveDesign(name: string) {
+			if (typeof localStorage === 'undefined') return;
+			try {
+				const raw = localStorage.getItem(SAVED_DESIGNS_KEY);
+				const designs: Record<string, TableConfig> = raw ? JSON.parse(raw) : {};
+				designs[name] = { ...config };
+				localStorage.setItem(SAVED_DESIGNS_KEY, JSON.stringify(designs));
+			} catch {
+				// quota exceeded or private browsing — ignore
+			}
+		},
+
+		loadDesign(name: string): boolean {
+			if (typeof localStorage === 'undefined') return false;
+			try {
+				const raw = localStorage.getItem(SAVED_DESIGNS_KEY);
+				if (!raw) return false;
+				const designs: Record<string, TableConfig> = JSON.parse(raw);
+				if (!(name in designs)) return false;
+				const merged = { ...DEFAULT_CONFIG, ...designs[name] };
+				config = merged;
+				saveConfig(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+
+		deleteDesign(name: string) {
+			if (typeof localStorage === 'undefined') return;
+			try {
+				const raw = localStorage.getItem(SAVED_DESIGNS_KEY);
+				if (!raw) return;
+				const designs: Record<string, TableConfig> = JSON.parse(raw);
+				delete designs[name];
+				localStorage.setItem(SAVED_DESIGNS_KEY, JSON.stringify(designs));
+			} catch {
+				// ignore
+			}
+		},
+
+		listDesigns(): string[] {
+			if (typeof localStorage === 'undefined') return [];
+			try {
+				const raw = localStorage.getItem(SAVED_DESIGNS_KEY);
+				if (!raw) return [];
+				const designs: Record<string, TableConfig> = JSON.parse(raw);
+				return Object.keys(designs).sort();
+			} catch {
+				return [];
 			}
 		}
 	};

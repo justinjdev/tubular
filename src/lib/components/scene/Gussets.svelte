@@ -4,7 +4,8 @@
 	import { Shape, ExtrudeGeometry } from 'three';
 
 	const cfg = $derived(tableStore.config);
-	const gs = $derived(cfg.gussetSize);
+	const gs = $derived(cfg.gussetWidth);
+	const gh = $derived(cfg.gussetHeight);
 	const gt = $derived(cfg.gussetThickness);
 
 	const legW = $derived(cfg.legTube.width);
@@ -20,18 +21,18 @@
 		rotation: [number, number, number];
 	}
 
-	const gussetKey = $derived(`${gs}-${gt}`);
+	const gussetKey = $derived(`${gs}-${gh}-${gt}`);
 
-	function makeGussetGeometry(size: number, thickness: number) {
+	function makeGussetGeometry(width: number, height: number, thickness: number) {
 		const shape = new Shape();
 		shape.moveTo(0, 0);
-		shape.lineTo(size, 0);
-		shape.lineTo(0, -size);
+		shape.lineTo(width, 0);
+		shape.lineTo(0, -height);
 		shape.closePath();
 		return new ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
 	}
 
-	const geometry = $derived(makeGussetGeometry(gs, gt));
+	const geometry = $derived(makeGussetGeometry(gs, gh, gt));
 
 	const hasAny = $derived(Object.values(cfg.gussets).some(Boolean));
 

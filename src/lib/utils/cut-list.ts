@@ -119,6 +119,17 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			length: config.depth - legTube.width * 2,
 			quantity: config.centerSupports
 		});
+		items.push({
+			group: 'Center Support',
+			description: 'Vertical Leg',
+			tubeLabel: stockLabel(legTube),
+			stockType: legTube.stockType,
+			width: legTube.width,
+			height: legTube.height,
+			thickness: legTube.thickness,
+			length: config.height - frameTube.height - config.footAllowance,
+			quantity: config.centerSupports * 2
+		});
 	}
 
 	// Gussets — triangular plates at leg-to-frame joints
@@ -128,12 +139,12 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		items.push({
 			group: 'Gusset',
 			description: 'Corner Gusset Plate',
-			tubeLabel: `${config.gussetSize}" × ${config.gussetThickness}" plate`,
+			tubeLabel: `${config.gussetWidth}" × ${config.gussetHeight}" × ${config.gussetThickness}" plate`,
 			stockType: 'flat-bar',
-			width: config.gussetSize,
-			height: config.gussetSize,
+			width: config.gussetWidth,
+			height: config.gussetHeight,
 			thickness: config.gussetThickness,
-			length: config.gussetSize,
+			length: Math.max(config.gussetWidth, config.gussetHeight),
 			quantity: gussetFaces * 2
 		});
 	}
