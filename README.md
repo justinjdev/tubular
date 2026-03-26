@@ -17,6 +17,7 @@ Interactive 3D welded steel table designer. Configure dimensions, tubing profile
 - **Materials Summary** — Weight and cost estimates
 - **Export** — PDF (orthographic views + cut lists) and DXF (for CNC/laser)
 - **Persistent Config** — Saves your design to localStorage automatically
+- **Import/Export** — Share designs via URL, JSON, or file upload
 
 ## Getting Started
 
@@ -36,6 +37,42 @@ Open [http://localhost:5173/tubular](http://localhost:5173/tubular) in your brow
 | `npm run preview` | Preview production build |
 | `npm run check` | TypeScript + Svelte type checking |
 | `npm run test` | Run unit tests |
+
+## Importing Designs
+
+You can import a table config in three ways:
+
+1. **Share link** — Append `?config=<base64>` to the URL
+2. **JSON paste** — Click Share in the header, paste JSON into the import box
+3. **File upload** — Upload a `.json` file
+
+### Generating configs with Claude / ChatGPT
+
+Give the LLM the [JSON schema](https://justinjdev.github.io/tubular/schema.json) and ask it to design a table. Paste the resulting JSON into Tubular's import panel.
+
+All values are in **inches**. Only include fields you want to override — omitted fields use defaults.
+
+### Example
+
+```json
+{
+  "length": 31.5,
+  "width": 29.5,
+  "height": 28.375,
+  "legTube": { "width": 1, "height": 1, "thickness": 0.125, "stockType": "tube" },
+  "frameTube": { "width": 1, "height": 1, "thickness": 0.065, "stockType": "tube" },
+  "braceTube": { "width": 1, "height": 0.125, "thickness": 0.125, "stockType": "flat-bar" },
+  "bracing": { "front": "none", "back": "x-brace", "left": "x-brace", "right": "x-brace" },
+  "gussets": { "front": true, "back": true, "left": true, "right": true },
+  "gussetSize": 3,
+  "centerSupports": 1,
+  "shelfFrame": true,
+  "drawers": [
+    { "drawers": [{ "height": 3 }, { "height": 10 }, { "height": 10 }] },
+    { "drawers": [] }
+  ]
+}
+```
 
 ## Tech Stack
 

@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Tubular Table Config",
+  "description": "Configuration for a welded steel tube table. All dimensions are in inches. Import this JSON into Tubular at https://justinjdev.github.io/tubular/ via the Share > Import panel, or append ?config=<base64> to the URL.",
+  "type": "object",
+  "properties": {
+    "length": {
+      "type": "number",
+      "description": "Table length (X-axis) in inches",
+      "minimum": 12,
+      "maximum": 120,
+      "default": 60
+    },
+    "width": {
+      "type": "number",
+      "description": "Table width (Z-axis / depth) in inches",
+      "minimum": 12,
+      "maximum": 120,
+      "default": 30
+    },
+    "height": {
+      "type": "number",
+      "description": "Table height (Y-axis) in inches",
+      "minimum": 12,
+      "maximum": 120,
+      "default": 30
+    },
+    "legTube": {
+      "$ref": "#/$defs/TubeProfile",
+      "description": "Tube profile for the 4 corner legs",
+      "default": { "width": 2, "height": 2, "thickness": 0.075, "stockType": "tube" }
+    },
+    "frameTube": {
+      "$ref": "#/$defs/TubeProfile",
+      "description": "Tube profile for the top frame rails and center support cross-members",
+      "default": { "width": 2, "height": 2, "thickness": 0.075, "stockType": "tube" }
+    },
+    "braceTube": {
+      "$ref": "#/$defs/TubeProfile",
+      "description": "Tube or flat-bar profile for bracing members (H-brace or X-brace)",
+      "default": { "width": 1, "height": 1, "thickness": 0.075, "stockType": "tube" }
+    },
+    "bracing": {
+      "type": "object",
+      "description": "Bracing type per side of the table",
+      "properties": {
+        "front": { "$ref": "#/$defs/BraceType" },
+        "back": { "$ref": "#/$defs/BraceType" },
+        "left": { "$ref": "#/$defs/BraceType" },
+        "right": { "$ref": "#/$defs/BraceType" }
+      },
+      "required": ["front", "back", "left", "right"],
+      "default": { "front": "none", "back": "none", "left": "none", "right": "none" }
+    },
+    "braceBottom": {
+      "type": "number",
+      "description": "Distance from bottom of legs to the bottom of the bracing, in inches",
+      "minimum": 0,
+      "default": 0
+    },
+    "braceSpan": {
+      "type": "number",
+      "description": "Vertical span of the bracing in inches",
+      "minimum": 1,
+      "default": 8
+    },
+    "centerSupports": {
+      "type": "integer",
+      "description": "Number of center support cross-members spanning the width. Creates (centerSupports + 1) bays for drawers.",
+      "minimum": 0,
+      "default": 0
+    },
+    "footAllowance": {
+      "type": "number",
+      "description": "Height subtracted from legs for leveling feet, in inches",
+      "minimum": 0,
+      "default": 0
+    },
+    "gussets": {
+      "type": "object",
+      "description": "Enable corner gusset plates per face. Each face gets 2 gussets (one at each corner).",
+      "properties": {
+        "front": { "type": "boolean" },
+        "back": { "type": "boolean" },
+        "left": { "type": "boolean" },
+        "right": { "type": "boolean" }
+      },
+      "required": ["front", "back", "left", "right"],
+      "default": { "front": false, "back": false, "left": false, "right": false }
+    },
+    "gussetSize": {
+      "type": "number",
+      "description": "Leg length of the right-triangle gusset plate in inches",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 3
+    },
+    "gussetThickness": {
+      "type": "number",
+      "description": "Gusset plate thickness in inches",
+      "minimum": 0.125,
+      "default": 0.1875
+    },
+    "drawers": {
+      "type": "array",
+      "description": "Drawer configuration per bay. Array length should equal (centerSupports + 1). Each bay contains an array of drawers.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "drawers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "height": {
+                  "type": "number",
+                  "description": "Drawer box height in inches",
+                  "minimum": 2,
+                  "maximum": 16
+                }
+              },
+              "required": ["height"]
+            }
+          }
+        },
+        "required": ["drawers"]
+      },
+      "default": []
+    },
+    "drawerSlideGap": {
+      "type": "number",
+      "description": "Clearance per side for drawer slides, in inches",
+      "minimum": 0.25,
+      "maximum": 1.0,
+      "default": 0.5
+    },
+    "drawerDepth": {
+      "type": "number",
+      "description": "Drawer box depth in inches",
+      "minimum": 6,
+      "maximum": 48,
+      "default": 18
+    },
+    "drawerFrontInset": {
+      "type": "number",
+      "description": "Distance from front leg outer face to drawer front, in inches",
+      "minimum": 0,
+      "maximum": 6,
+      "default": 1
+    },
+    "drawerSideThickness": {
+      "type": "number",
+      "description": "Drawer side/front/back panel thickness in inches",
+      "default": 0.5
+    },
+    "drawerBottomThickness": {
+      "type": "number",
+      "description": "Drawer bottom panel thickness in inches",
+      "default": 0.25
+    },
+    "drawerSlideMount": {
+      "type": "string",
+      "description": "Material for slide mounting rails welded inside the frame",
+      "enum": ["angle-iron", "flat-bar", "hardwood"],
+      "default": "angle-iron"
+    },
+    "drawerSlideMountSize": {
+      "type": "string",
+      "description": "Dimensions of the slide mount material, e.g. '1×1×1/8' for angle iron, '1×1/8' for flat bar",
+      "default": "1×1×1/8"
+    },
+    "shelfFrame": {
+      "type": "boolean",
+      "description": "Add a lower shelf frame (horizontal rails between legs at brace height)",
+      "default": false
+    },
+    "metric": {
+      "type": "boolean",
+      "description": "Display dimensions in metric (mm/kg). All values in the config are still stored in inches regardless of this toggle.",
+      "default": false
+    }
+  },
+  "$defs": {
+    "TubeProfile": {
+      "type": "object",
+      "description": "Steel tube or flat-bar profile dimensions",
+      "properties": {
+        "width": {
+          "type": "number",
+          "description": "Outer width in inches"
+        },
+        "height": {
+          "type": "number",
+          "description": "Outer height in inches (for flat bar, this equals thickness)"
+        },
+        "thickness": {
+          "type": "number",
+          "description": "Wall thickness in inches"
+        },
+        "stockType": {
+          "type": "string",
+          "enum": ["tube", "flat-bar"],
+          "description": "'tube' for hollow square/rectangular tube, 'flat-bar' for solid flat stock"
+        }
+      },
+      "required": ["width", "height", "thickness", "stockType"]
+    },
+    "BraceType": {
+      "type": "string",
+      "enum": ["none", "h-brace", "x-brace"],
+      "description": "Bracing type: none, horizontal H-brace, or diagonal X-brace"
+    }
+  },
+  "additionalProperties": false
+}
