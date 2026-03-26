@@ -8,7 +8,7 @@
 	const drawerInfo = $derived(computeDrawerCutList(config));
 	const numBays = $derived(config.centerSupports + 1);
 
-	const legHeight = $derived(config.height - config.frameTube.height - config.footAllowance);
+	const legHeight = $derived(config.height - config.frameTube.height);
 
 	function usedHeight(bayIndex: number): number {
 		const bayDrawers = config.drawers[bayIndex]?.drawers ?? [];

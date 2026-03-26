@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { T } from '@threlte/core';
-	import { tableStore, type GussetFace } from '$lib/stores/table.svelte';
+	import { tableStore, resolvedLegDimensions, type GussetFace } from '$lib/stores/table.svelte';
 	import { Shape, ExtrudeGeometry } from 'three';
 
 	const cfg = $derived(tableStore.config);
+	const legDims = $derived(resolvedLegDimensions(cfg));
 	const gs = $derived(cfg.gussetWidth);
 	const gh = $derived(cfg.gussetHeight);
 	const gt = $derived(cfg.gussetThickness);
 
-	const legW = $derived(cfg.legTube.width);
-	const legH = $derived(cfg.legTube.height);
-	const legHeight = $derived(cfg.height - cfg.frameTube.height - cfg.footAllowance);
-	const frameBottom = $derived(cfg.footAllowance + legHeight);
+	const legW = $derived(legDims.legW);
+	const legH = $derived(legDims.legH);
+	const legHeight = $derived(cfg.height - cfg.frameTube.height);
+	const frameBottom = $derived(cfg.feet.height + legHeight);
 
 	const halfW = $derived(cfg.width / 2 - legW / 2);
 	const halfD = $derived(cfg.depth / 2 - legH / 2);

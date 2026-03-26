@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, resolvedLegDimensions } from '$lib/stores/table.svelte';
 	import type { Side } from '$lib/stores/table.svelte';
 	import TubeMember from './TubeMember.svelte';
 
@@ -10,13 +10,14 @@
 	let { side }: Props = $props();
 
 	const cfg = $derived(tableStore.config);
+	const legDims = $derived(resolvedLegDimensions(cfg));
 	const isFlat = $derived(cfg.braceTube.stockType === 'flat-bar');
 	// Flat bar: wide face vertical (width → Y), thin face → depth
 	const bVertical = $derived(isFlat ? cfg.braceTube.width : cfg.braceTube.height);
 	const bDepth = $derived(isFlat ? cfg.braceTube.height : cfg.braceTube.width);
-	const legW = $derived(cfg.legTube.width);
-	const legH = $derived(cfg.legTube.height);
-	const braceY = $derived(cfg.braceBottom + cfg.braceSpan);
+	const legW = $derived(legDims.legW);
+	const legH = $derived(legDims.legH);
+	const braceY = $derived(cfg.feet.height + cfg.braceBottom + cfg.braceSpan);
 
 	// Compute position and span based on which side
 	const halfWidth = $derived(cfg.width / 2 - legW / 2);
@@ -47,4 +48,4 @@
 	});
 </script>
 
-<TubeMember size={size()} position={position()} color="#c08040" />
+<TubeMember size={size()} position={position()} color="#c08040" stockType={cfg.braceTube.stockType} />

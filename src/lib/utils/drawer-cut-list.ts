@@ -1,4 +1,5 @@
 import type { TableConfig, DrawerConfig } from '$lib/stores/table.svelte';
+import { resolvedLegDimensions } from '$lib/stores/table.svelte';
 
 export interface DrawerDimensions {
 	bayIndex: number;
@@ -55,7 +56,7 @@ function nearestSlideLength(depth: number): number {
  * Returns the width and X-center of each bay.
  */
 export function computeBays(config: TableConfig): DrawerBayInfo[] {
-	const legW = config.legTube.width;
+	const { legW } = resolvedLegDimensions(config);
 	const innerWidth = config.width - legW * 2; // space between legs along X
 	const numBays = config.centerSupports + 1;
 	const bayWidth = innerWidth / numBays;
@@ -78,8 +79,7 @@ export function computeDrawerCutList(config: TableConfig): DrawerCutList {
 	const dimensions: DrawerDimensions[] = [];
 	const bays = computeBays(config);
 
-	const legW = config.legTube.width;
-	const legH = config.legTube.height;
+	const { legW, legH } = resolvedLegDimensions(config);
 	const innerWidth = config.width - legW * 2;
 	const numBays = config.centerSupports + 1;
 	const bayWidth = innerWidth / numBays;
@@ -171,7 +171,7 @@ export function computeDrawerCutList(config: TableConfig): DrawerCutList {
 	});
 
 	// Slide mounting rail length = leg height below frame
-	const railLength = config.height - config.frameTube.height - config.footAllowance;
+	const railLength = config.height - config.frameTube.height;
 
 	return {
 		panels,

@@ -1,9 +1,18 @@
 <script lang="ts">
-	import { tableStore, type GussetFace } from '$lib/stores/table.svelte';
+	import { tableStore, type GussetFace, type FeetType } from '$lib/stores/table.svelte';
 	import { inToDisplay, lengthUnit } from '$lib/utils/units';
 	import { toFraction } from '$lib/utils/fractions';
 
+	const feetTypes: { value: FeetType; label: string }[] = [
+		{ value: 'none', label: 'None' },
+		{ value: 'leveling', label: 'Leveling' },
+		{ value: 'caster', label: 'Caster' },
+	];
+
+	const threadSizes = ['3/8-16', '1/2-13', '5/8-11', 'M10×1.5', 'M12×1.75'];
+
 	const config = $derived(tableStore.config);
+	const totalHeight = $derived(config.height + config.feet.height);
 
 	const anyGusset = $derived(Object.values(config.gussets).some(Boolean));
 	const allGussets = $derived(Object.values(config.gussets).every(Boolean));
@@ -190,28 +199,75 @@
 		/>
 	</div>
 
-	<!-- Foot/leveler allowance -->
-	<div class="flex flex-col gap-1.5">
-		<div class="flex items-center justify-between">
-			<label for="foot-allowance" class="text-xs text-neutral-500">Foot Allowance</label>
-			<div class="flex items-center gap-1">
-				<span class="text-xs text-neutral-400">
-					{inToDisplay(config.footAllowance, config.metric)} {lengthUnit(config.metric)}
-				</span>
-				{#if !config.metric}
-					<span class="text-[10px] text-neutral-500">({toFraction(config.footAllowance)}")</span>
-				{/if}
-			</div>
+	<!-- Leveling feet / casters -->
+	<div class="flex flex-col gap-2">
+		<span class="text-xs text-neutral-500">Feet / Casters</span>
+		<div class="flex gap-0.5 rounded-lg bg-neutral-800 p-0.5">
+			{#each feetTypes as ft}
+				<button
+					class="flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors {config.feet.type === ft.value ? 'bg-amber-700 text-amber-200' : 'text-neutral-400 hover:text-neutral-300'}"
+					onclick={() => tableStore.updateFeetType(ft.value)}
+				>
+					{ft.label}
+				</button>
+			{/each}
 		</div>
-		<input
-			id="foot-allowance"
-			type="range"
-			class="accent-amber-500"
-			min={0}
-			max={4}
-			step={0.25}
-			value={config.footAllowance}
-			oninput={(e) => tableStore.updateFootAllowance(parseFloat((e.target as HTMLInputElement).value))}
-		/>
+
+		{#if config.feet.type !== 'none'}
+			<!-- Thread size -->
+			<div class="flex items-center justify-between">
+				<label for="thread-size" class="text-xs text-neutral-500">Thread size</label>
+				<select
+					id="thread-size"
+					class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+					value={config.feet.threadSize}
+					onchange={(e) => tableStore.updateFeetThreadSize((e.target as HTMLSelectElement).value)}
+				>
+					{#each threadSizes as ts}
+						<option value={ts}>{ts}</option>
+					{/each}
+				</select>
+			</div>
+
+			<!-- Foot/caster height -->
+			<div class="flex flex-col gap-1.5">
+				<div class="flex items-center justify-between">
+					<label for="feet-height" class="text-xs text-neutral-500">
+						{config.feet.type === 'caster' ? 'Caster height' : 'Foot height'}
+					</label>
+					<div class="flex items-center gap-1">
+						<span class="text-xs text-neutral-400">
+							{inToDisplay(config.feet.height, config.metric)} {lengthUnit(config.metric)}
+						</span>
+						{#if !config.metric}
+							<span class="text-[10px] text-neutral-500">({toFraction(config.feet.height)}")</span>
+						{/if}
+					</div>
+				</div>
+				<input
+					id="feet-height"
+					type="range"
+					class="accent-amber-500"
+					min={0.5}
+					max={6}
+					step={0.25}
+					value={config.feet.height}
+					oninput={(e) => tableStore.updateFeetHeight(parseFloat((e.target as HTMLInputElement).value))}
+				/>
+			</div>
+
+			<!-- Total height display -->
+			<div class="flex items-center justify-between rounded bg-neutral-800/50 px-2 py-1.5">
+				<span class="text-[10px] text-neutral-500">Total height (with feet)</span>
+				<div class="flex items-center gap-1">
+					<span class="text-xs text-neutral-400">
+						{inToDisplay(totalHeight, config.metric)} {lengthUnit(config.metric)}
+					</span>
+					{#if !config.metric}
+						<span class="text-[10px] text-neutral-500">({toFraction(totalHeight)}")</span>
+					{/if}
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>

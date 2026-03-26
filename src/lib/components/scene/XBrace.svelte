@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, resolvedLegDimensions } from '$lib/stores/table.svelte';
 	import type { Side } from '$lib/stores/table.svelte';
 	import TubeMember from './TubeMember.svelte';
 
@@ -10,12 +10,13 @@
 	let { side }: Props = $props();
 
 	const cfg = $derived(tableStore.config);
+	const legDims = $derived(resolvedLegDimensions(cfg));
 	const isFlat = $derived(cfg.braceTube.stockType === 'flat-bar');
 	// Flat bar: wide face vertical (width → Y), thin face → depth
 	const bVertical = $derived(isFlat ? cfg.braceTube.width : cfg.braceTube.height);
 	const bDepth = $derived(isFlat ? cfg.braceTube.height : cfg.braceTube.width);
-	const legW = $derived(cfg.legTube.width);
-	const legH = $derived(cfg.legTube.height);
+	const legW = $derived(legDims.legW);
+	const legH = $derived(legDims.legH);
 	const braceBot = $derived(cfg.braceBottom);
 	const braceSpan = $derived(cfg.braceSpan);
 
@@ -31,7 +32,7 @@
 	const angle = $derived(Math.atan2(braceSpan, span));
 
 	// Center position of the X brace (vertically centered between bottom and top)
-	const centerY = $derived(braceBot + braceSpan / 2);
+	const centerY = $derived(cfg.feet.height + braceBot + braceSpan / 2);
 
 	const isFrontBack = $derived(side === 'front' || side === 'back');
 
@@ -77,5 +78,5 @@
 	);
 </script>
 
-<TubeMember size={diagSize} position={center1()} rotation={rot1} color="#c08040" />
-<TubeMember size={diagSize} position={center2()} rotation={rot2} color="#c08040" />
+<TubeMember size={diagSize} position={center1()} rotation={rot1} color="#c08040" stockType={cfg.braceTube.stockType} />
+<TubeMember size={diagSize} position={center2()} rotation={rot2} color="#c08040" stockType={cfg.braceTube.stockType} />

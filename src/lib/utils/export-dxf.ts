@@ -1,4 +1,5 @@
 import type { TableConfig } from '$lib/stores/table.svelte';
+import { resolvedLegDimensions } from '$lib/stores/table.svelte';
 
 function line(x1: number, y1: number, x2: number, y2: number, layer = '0'): string {
 	return `0
@@ -48,9 +49,8 @@ function rect(x: number, y: number, w: number, h: number, layer = '0'): string {
 }
 
 export function exportDXF(config: TableConfig): void {
-	const { width, depth, legTube } = config;
-	const legW = legTube.width;
-	const legH = legTube.height;
+	const { width, depth } = config;
+	const { legW, legH } = resolvedLegDimensions(config);
 
 	let entities = '';
 

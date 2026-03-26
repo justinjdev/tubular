@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { tableStore, type TubeProfile } from '$lib/stores/table.svelte';
-	import { ALL_PRESETS, TUBE_PRESETS, FLAT_BAR_PRESETS, GAUGE_TO_THICKNESS, type StockType, type StockPreset } from '$lib/data/tubing-presets';
+	import { tableStore, type TubeProfile, type LegOrientation } from '$lib/stores/table.svelte';
+	import { ALL_PRESETS, TUBE_PRESETS, FLAT_BAR_PRESETS, ROUND_PRESETS, GAUGE_TO_THICKNESS, type StockType, type StockPreset } from '$lib/data/tubing-presets';
 
 	const config = $derived(tableStore.config);
 
@@ -21,7 +21,16 @@
 	}
 
 	function presetsForType(st: StockType): StockPreset[] {
-		return st === 'flat-bar' ? FLAT_BAR_PRESETS : TUBE_PRESETS;
+		if (st === 'flat-bar') return FLAT_BAR_PRESETS;
+		if (st === 'round') return ROUND_PRESETS;
+		return TUBE_PRESETS;
+	}
+
+	function handleODChange(member: MemberKey, e: Event) {
+		const val = parseFloat((e.target as HTMLInputElement).value);
+		if (isNaN(val) || val <= 0) return;
+		const current = config[member];
+		tableStore.updateTube(member, { ...current, width: val, height: val });
 	}
 
 	function findPresetIndex(tube: TubeProfile): number {
@@ -82,7 +91,7 @@
 		{@const isOpen = openSection === sec.key}
 		{@const presets = presetsForType(tube.stockType)}
 		{@const presetIdx = findPresetIndex(tube)}
-		{@const gauge = tube.stockType === 'tube' ? findGauge(tube.thickness) : null}
+		{@const gauge = (tube.stockType === 'tube' || tube.stockType === 'round') ? findGauge(tube.thickness) : null}
 
 		<div class="overflow-hidden rounded border border-neutral-800">
 			<button
@@ -91,7 +100,7 @@
 			>
 				<span>{sec.label}</span>
 				<span class="text-xs text-neutral-500">
-					{tube.stockType === 'flat-bar' ? 'Flat' : 'Tube'} — {tube.width}" × {tube.height}"
+					{tube.stockType === 'flat-bar' ? 'Flat' : tube.stockType === 'round' ? 'Round' : 'Tube'} — {tube.stockType === 'round' ? `${tube.width}" OD` : `${tube.width}" × ${tube.height}"`}
 				</span>
 				<svg
 					class="h-4 w-4 text-neutral-500 transition-transform {isOpen ? 'rotate-180' : ''}"
@@ -112,6 +121,12 @@
 							onclick={() => handleStockTypeChange(sec.key, 'tube')}
 						>
 							Tube
+						</button>
+						<button
+							class="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors {tube.stockType === 'round' ? 'bg-amber-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}"
+							onclick={() => handleStockTypeChange(sec.key, 'round')}
+						>
+							Round
 						</button>
 						<button
 							class="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors {tube.stockType === 'flat-bar' ? 'bg-amber-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}"
@@ -147,39 +162,55 @@
 					</div>
 
 					<!-- Custom overrides -->
-					<div class="grid grid-cols-2 gap-2">
+					{#if tube.stockType === 'round'}
 						<div class="flex flex-col gap-1">
-							<label class="text-xs text-neutral-500" for="tube-w-{sec.key}">Width (in)</label>
+							<label class="text-xs text-neutral-500" for="tube-od-{sec.key}">OD (in)</label>
 							<input
-								id="tube-w-{sec.key}"
+								id="tube-od-{sec.key}"
 								type="number"
 								class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
 								value={tube.width}
 								min={0.25}
 								max={6}
 								step={0.125}
-								oninput={(e) => handleCustom(sec.key, 'width', e)}
+								oninput={(e) => handleODChange(sec.key, e)}
 							/>
 						</div>
-						<div class="flex flex-col gap-1">
-							<label class="text-xs text-neutral-500" for="tube-h-{sec.key}">
-								{tube.stockType === 'flat-bar' ? 'Thickness (in)' : 'Height (in)'}
-							</label>
-							<input
-								id="tube-h-{sec.key}"
-								type="number"
-								class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
-								value={tube.height}
-								min={tube.stockType === 'flat-bar' ? 0.0625 : 0.5}
-								max={6}
-								step={tube.stockType === 'flat-bar' ? 0.0625 : 0.25}
-								oninput={(e) => handleCustom(sec.key, 'height', e)}
-							/>
+					{:else}
+						<div class="grid grid-cols-2 gap-2">
+							<div class="flex flex-col gap-1">
+								<label class="text-xs text-neutral-500" for="tube-w-{sec.key}">Width (in)</label>
+								<input
+									id="tube-w-{sec.key}"
+									type="number"
+									class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+									value={tube.width}
+									min={0.25}
+									max={6}
+									step={0.125}
+									oninput={(e) => handleCustom(sec.key, 'width', e)}
+								/>
+							</div>
+							<div class="flex flex-col gap-1">
+								<label class="text-xs text-neutral-500" for="tube-h-{sec.key}">
+									{tube.stockType === 'flat-bar' ? 'Thickness (in)' : 'Height (in)'}
+								</label>
+								<input
+									id="tube-h-{sec.key}"
+									type="number"
+									class="rounded bg-neutral-800 px-2 py-1.5 text-sm text-white outline-none ring-1 ring-neutral-700 focus:ring-amber-500"
+									value={tube.height}
+									min={tube.stockType === 'flat-bar' ? 0.0625 : 0.5}
+									max={6}
+									step={tube.stockType === 'flat-bar' ? 0.0625 : 0.25}
+									oninput={(e) => handleCustom(sec.key, 'height', e)}
+								/>
+							</div>
 						</div>
-					</div>
+					{/if}
 
-					<!-- Wall thickness (tube only) -->
-					{#if tube.stockType === 'tube'}
+					<!-- Wall thickness (tube and round) -->
+					{#if tube.stockType === 'tube' || tube.stockType === 'round'}
 						<div class="flex flex-col gap-1">
 							<span class="text-xs text-neutral-500">Wall Thickness</span>
 							<div class="grid grid-cols-2 gap-2">
@@ -210,6 +241,33 @@
 										oninput={(e) => handleCustom(sec.key, 'thickness', e)}
 									/>
 								</div>
+							</div>
+						</div>
+					{/if}
+
+					<!-- Leg orientation (rectangular tube legs only) -->
+					{#if sec.key === 'legTube' && tube.stockType === 'tube' && tube.width !== tube.height}
+						<div class="flex flex-col gap-1">
+							<span class="text-xs text-neutral-500">Leg Orientation</span>
+							<div class="flex gap-1">
+								<button
+									class="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors {config.legOrientation === 'auto' ? 'bg-amber-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}"
+									onclick={() => tableStore.updateLegOrientation('auto')}
+								>
+									Auto
+								</button>
+								<button
+									class="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors {config.legOrientation === 'width-front' ? 'bg-amber-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}"
+									onclick={() => tableStore.updateLegOrientation('width-front')}
+								>
+									Width Front
+								</button>
+								<button
+									class="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors {config.legOrientation === 'width-side' ? 'bg-amber-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}"
+									onclick={() => tableStore.updateLegOrientation('width-side')}
+								>
+									Width Side
+								</button>
 							</div>
 						</div>
 					{/if}

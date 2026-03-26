@@ -70,11 +70,28 @@
       "minimum": 0,
       "default": 0
     },
-    "footAllowance": {
-      "type": "number",
-      "description": "Height subtracted from legs for leveling feet, in inches",
-      "minimum": 0,
-      "default": 0
+    "feet": {
+      "type": "object",
+      "description": "Leveling feet or caster configuration. Feet add height below the legs.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["none", "leveling", "caster"],
+          "default": "none"
+        },
+        "height": {
+          "type": "number",
+          "description": "Height added by feet/casters in inches (adjustment range midpoint or caster wheel diameter)",
+          "minimum": 0,
+          "default": 0
+        },
+        "threadSize": {
+          "type": "string",
+          "description": "Thread size for feet/casters, e.g. '3/8-16', '1/2-13'",
+          "default": "3/8-16"
+        }
+      },
+      "default": { "type": "none", "height": 0, "threadSize": "3/8-16" }
     },
     "gussets": {
       "type": "object",

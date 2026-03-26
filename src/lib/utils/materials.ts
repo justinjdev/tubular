@@ -62,10 +62,17 @@ export function computeMaterials(
 		const { width: w, height: h, thickness: t } = entry;
 		const totalFeet = entry.totalInches / 12;
 
-		// Cross-section area: solid for flat bar, hollow for tube
-		const crossSection = entry.stockType === 'flat-bar'
-			? w * h
-			: w * h - (w - 2 * t) * (h - 2 * t);
+		// Cross-section area: solid for flat bar, hollow for tube, annular for round
+		let crossSection: number;
+		if (entry.stockType === 'flat-bar') {
+			crossSection = w * h;
+		} else if (entry.stockType === 'round') {
+			const od = w;
+			const id = od - 2 * t;
+			crossSection = (Math.PI / 4) * (od * od - id * id);
+		} else {
+			crossSection = w * h - (w - 2 * t) * (h - 2 * t);
+		}
 		// Volume in cubic inches, then multiply by density
 		const weight = crossSection * entry.totalInches * STEEL_DENSITY_PER_CUBIC_INCH;
 

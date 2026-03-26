@@ -4,6 +4,13 @@ export type BraceType = 'none' | 'h-brace' | 'x-brace';
 export type Side = 'front' | 'back' | 'left' | 'right';
 export type Corner = 'front-left' | 'front-right' | 'back-left' | 'back-right';
 export type GussetFace = 'front' | 'back' | 'left' | 'right';
+export type FeetType = 'none' | 'leveling' | 'caster';
+
+export interface FeetConfig {
+	type: FeetType;
+	height: number;
+	threadSize: string;
+}
 
 export interface TubeProfile {
 	width: number;
@@ -20,6 +27,8 @@ export interface BayDrawers {
 	drawers: DrawerConfig[];
 }
 
+export type LegOrientation = 'auto' | 'width-front' | 'width-side';
+
 export interface TableConfig {
 	width: number;
 	depth: number;
@@ -27,11 +36,12 @@ export interface TableConfig {
 	legTube: TubeProfile;
 	frameTube: TubeProfile;
 	braceTube: TubeProfile;
+	legOrientation: LegOrientation;
 	bracing: Record<Side, BraceType>;
 	braceBottom: number;
 	braceSpan: number;
 	centerSupports: number;
-	footAllowance: number;
+	feet: FeetConfig;
 	gussets: Record<GussetFace, boolean>;
 	gussetWidth: number; // horizontal leg of the right triangle, in inches
 	gussetHeight: number; // vertical leg of the right triangle, in inches
@@ -62,11 +72,12 @@ export const DEFAULT_CONFIG: TableConfig = {
 	legTube: defaultTube(2, 2, 0.075),
 	frameTube: defaultTube(2, 2, 0.075),
 	braceTube: defaultTube(1, 1, 0.075),
+	legOrientation: 'auto',
 	bracing: { front: 'none', back: 'none', left: 'none', right: 'none' },
 	braceBottom: 0,
 	braceSpan: 8,
 	centerSupports: 0,
-	footAllowance: 0,
+	feet: { type: 'none', height: 0, threadSize: '3/8-16' },
 	gussets: { front: false, back: false, left: false, right: false },
 	gussetWidth: 3,
 	gussetHeight: 3,
@@ -112,6 +123,12 @@ function loadConfig(): TableConfig {
 			merged.gussetHeight = saved.gussetSize;
 		}
 		delete (merged as any).gussetSize;
+		// Migrate footAllowance → feet
+		if ('footAllowance' in saved && !('feet' in saved)) {
+			const fa = saved.footAllowance as number;
+			merged.feet = { type: fa > 0 ? 'leveling' : 'none', height: fa, threadSize: '3/8-16' };
+		}
+		delete (merged as any).footAllowance;
 		// Migrate old gusset formats to per-face
 		if (typeof merged.gussets === 'boolean') {
 			const all = merged.gussets;
@@ -169,6 +186,10 @@ function createTableStore() {
 			set({ [member]: tube });
 		},
 
+		updateLegOrientation(value: LegOrientation) {
+			set({ legOrientation: value });
+		},
+
 		updateBracing(side: Side, type: BraceType) {
 			set({ bracing: { ...config.bracing, [side]: type } });
 		},
@@ -183,8 +204,17 @@ function createTableStore() {
 			set({ braceSpan: Math.max(1, Math.min(maxSpan, value)) });
 		},
 
-		updateFootAllowance(value: number) {
-			set({ footAllowance: Math.max(0, value) });
+		updateFeetType(type: FeetType) {
+			const defaults: Record<FeetType, number> = { none: 0, leveling: 1, caster: 3 };
+			set({ feet: { ...config.feet, type, height: defaults[type] } });
+		},
+
+		updateFeetHeight(value: number) {
+			set({ feet: { ...config.feet, height: Math.max(0.5, Math.min(6, value)) } });
+		},
+
+		updateFeetThreadSize(size: string) {
+			set({ feet: { ...config.feet, threadSize: size } });
 		},
 
 		updateCenterSupports(value: number) {
@@ -302,6 +332,12 @@ function createTableStore() {
 				merged.gussetHeight = parsed.gussetSize;
 			}
 			delete (merged as any).gussetSize;
+			// Migrate footAllowance → feet
+			if ('footAllowance' in parsed && !('feet' in parsed)) {
+				const fa = parsed.footAllowance as number;
+				merged.feet = { type: fa > 0 ? 'leveling' : 'none', height: fa, threadSize: '3/8-16' };
+			}
+			delete (merged as any).footAllowance;
 			// Migrate gusset formats
 				if (typeof merged.gussets === 'boolean') {
 					const all = merged.gussets;
@@ -388,3 +424,18 @@ function createTableStore() {
 }
 
 export const tableStore = createTableStore();
+
+/**
+ * Resolves the effective leg dimensions (legW for X-axis, legH for Z-axis)
+ * based on leg orientation setting and table proportions.
+ */
+export function resolvedLegDimensions(config: TableConfig): { legW: number; legH: number } {
+	const { legTube, legOrientation } = config;
+	if (legTube.width === legTube.height || legTube.stockType === 'round') {
+		return { legW: legTube.width, legH: legTube.height };
+	}
+	if (legOrientation === 'width-side' || (legOrientation === 'auto' && config.width >= config.depth)) {
+		return { legW: legTube.width, legH: legTube.height }; // width on X (side-to-side)
+	}
+	return { legW: legTube.height, legH: legTube.width }; // width on Z (front-to-back)
+}

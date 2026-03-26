@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, resolvedLegDimensions } from '$lib/stores/table.svelte';
 	import { computeBays } from '$lib/utils/drawer-cut-list';
 	import TubeMember from './TubeMember.svelte';
 
 	const cfg = $derived(tableStore.config);
+	const legDims = $derived(resolvedLegDimensions(cfg));
 	const bays = $derived(computeBays(cfg));
 
-	const legW = $derived(cfg.legTube.width);
-	const legH = $derived(cfg.legTube.height);
+	const legW = $derived(legDims.legW);
+	const legH = $derived(legDims.legH);
 	const frameH = $derived(cfg.frameTube.height);
-	const legHeight = $derived(cfg.height - frameH - cfg.footAllowance);
-	const frameBottom = $derived(cfg.footAllowance + legHeight);
+	const legHeight = $derived(cfg.height - frameH);
+	const frameBottom = $derived(cfg.feet.height + legHeight);
 
 	const boxWidth = $derived.by(() => {
 		const innerWidth = cfg.width - legW * 2;

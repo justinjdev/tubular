@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import type { TableConfig } from '$lib/stores/table.svelte';
+import { resolvedLegDimensions } from '$lib/stores/table.svelte';
 import type { CutListItem } from './cut-list';
 import type { MaterialsSummary } from './materials';
 import { inToDisplay, lengthUnit, ftToDisplay, lengthLongUnit, lbToDisplay, weightUnit } from './units';
@@ -73,16 +74,19 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	const pageWidth = doc.internal.pageSize.getWidth();
 
 	// Scale factor: fit largest dimension into ~150pt
-	const maxDim = Math.max(config.width, config.depth, config.height);
+	const maxDim = Math.max(config.width, config.depth, config.height + config.feet.height);
 	const scale = 140 / maxDim;
 
 	const sW = config.width * scale;
 	const sD = config.depth * scale;
 	const sH = config.height * scale;
-	const sLegW = config.legTube.width * scale;
-	const sLegH = config.legTube.height * scale;
+	const { legW: rLegW, legH: rLegH } = resolvedLegDimensions(config);
+	const sLegW = rLegW * scale;
+	const sLegH = rLegH * scale;
 	const sFrameH = config.frameTube.height * scale;
-	const sFoot = config.footAllowance * scale;
+	const sFoot = config.feet.height * scale;
+	const totalHeight = config.height + config.feet.height;
+	const sTotalH = totalHeight * scale;
 
 	let y = startY;
 
@@ -101,19 +105,24 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 
 	doc.setDrawColor(40);
 	doc.setLineWidth(0.8);
+	const sLegLen = sH - sFrameH; // leg length (full, no foot subtraction)
+
 	// Top frame rail
 	doc.rect(frontX, frontY, sW, sFrameH);
 	// Left leg
-	doc.rect(frontX, frontY + sFrameH, sLegW, sH - sFrameH - sFoot);
+	doc.rect(frontX, frontY + sFrameH, sLegW, sLegLen);
 	// Right leg
-	doc.rect(frontX + sW - sLegW, frontY + sFrameH, sLegW, sH - sFrameH - sFoot);
+	doc.rect(frontX + sW - sLegW, frontY + sFrameH, sLegW, sLegLen);
 
-	// Foot allowance dashes
+	// Feet dashes below legs
 	if (sFoot > 1) {
 		doc.setLineDashPattern([2, 2], 0);
-		const legBottom = frontY + sH - sFoot;
+		const legBottom = frontY + sH;
 		doc.line(frontX, legBottom, frontX + sLegW, legBottom);
 		doc.line(frontX + sW - sLegW, legBottom, frontX + sW, legBottom);
+		// Short vertical dashes for feet
+		doc.line(frontX + sLegW / 2, legBottom, frontX + sLegW / 2, legBottom + sFoot);
+		doc.line(frontX + sW - sLegW / 2, legBottom, frontX + sW - sLegW / 2, legBottom + sFoot);
 		doc.setLineDashPattern([], 0);
 	}
 
@@ -122,8 +131,8 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	if (braceType !== 'none') {
 		const bLeft = frontX + sLegW;
 		const bRight = frontX + sW - sLegW;
-		const bTop = frontY + sH - sFoot - config.braceBottom * scale - config.braceSpan * scale;
-		const bBottom = frontY + sH - sFoot - config.braceBottom * scale;
+		const bTop = frontY + sH - config.braceBottom * scale - config.braceSpan * scale;
+		const bBottom = frontY + sH - config.braceBottom * scale;
 		doc.setDrawColor(120);
 		doc.setLineWidth(0.5);
 		if (braceType === 'h-brace') {
@@ -159,12 +168,12 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	}
 
 	// Dimensions — width (horizontal below)
-	drawDim(doc, frontX, frontY + sH, frontX + sW, frontY + sH, dimLabel(config.width, m), 14, 'h');
-	// Dimensions — height (vertical right)
-	drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
-	// Total height including foot
-	if (config.footAllowance > 0) {
-		drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH, dimLabel(config.height, m), 28, 'v');
+	drawDim(doc, frontX, frontY + sH + sFoot, frontX + sW, frontY + sH + sFoot, dimLabel(config.width, m), 14, 'h');
+	// Dimensions — frame height (vertical right)
+	drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH, dimLabel(config.height, m), 14, 'v');
+	// Total height including feet
+	if (config.feet.height > 0) {
+		drawDim(doc, frontX + sW, frontY, frontX + sW, frontY + sH + sFoot, dimLabel(totalHeight, m), 28, 'v');
 	}
 
 	// --- Side View (looking at right side, shows Depth x Height) ---
@@ -180,17 +189,17 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	// Top frame rail
 	doc.rect(sideX, sideY, sD, sFrameH);
 	// Left leg (front leg from side)
-	doc.rect(sideX, sideY + sFrameH, sLegH, sH - sFrameH - sFoot);
+	doc.rect(sideX, sideY + sFrameH, sLegH, sLegLen);
 	// Right leg (back leg from side)
-	doc.rect(sideX + sD - sLegH, sideY + sFrameH, sLegH, sH - sFrameH - sFoot);
+	doc.rect(sideX + sD - sLegH, sideY + sFrameH, sLegH, sLegLen);
 
 	// Bracing on right side
 	const sideBrace = config.bracing.right;
 	if (sideBrace !== 'none') {
 		const bLeft = sideX + sLegH;
 		const bRight = sideX + sD - sLegH;
-		const bTop = sideY + sH - sFoot - config.braceBottom * scale - config.braceSpan * scale;
-		const bBottom = sideY + sH - sFoot - config.braceBottom * scale;
+		const bTop = sideY + sH - config.braceBottom * scale - config.braceSpan * scale;
+		const bBottom = sideY + sH - config.braceBottom * scale;
 		doc.setDrawColor(120);
 		doc.setLineWidth(0.5);
 		if (sideBrace === 'h-brace') {
@@ -226,11 +235,11 @@ function drawOrthographicViews(doc: jsPDF, config: TableConfig, startY: number):
 	}
 
 	// Dimensions — depth
-	drawDim(doc, sideX, sideY + sH, sideX + sD, sideY + sH, dimLabel(config.depth, m), 14, 'h');
-	// Dimensions — height
-	drawDim(doc, sideX + sD, sideY, sideX + sD, sideY + sH - sFoot, dimLabel(config.height - config.footAllowance, m), 14, 'v');
+	drawDim(doc, sideX, sideY + sH + sFoot, sideX + sD, sideY + sH + sFoot, dimLabel(config.depth, m), 14, 'h');
+	// Dimensions — frame height
+	drawDim(doc, sideX + sD, sideY, sideX + sD, sideY + sH, dimLabel(config.height, m), 14, 'v');
 
-	y = frontY + sH + 36;
+	y = frontY + sH + sFoot + 36;
 
 	// --- Top View (plan view, shows Width x Depth) ---
 	const topX = 60;

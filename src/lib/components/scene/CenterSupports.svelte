@@ -1,19 +1,20 @@
 <script lang="ts">
-	import { tableStore } from '$lib/stores/table.svelte';
+	import { tableStore, resolvedLegDimensions } from '$lib/stores/table.svelte';
 	import TubeMember from './TubeMember.svelte';
 
 	const cfg = $derived(tableStore.config);
+	const legDims = $derived(resolvedLegDimensions(cfg));
 	const count = $derived(cfg.centerSupports);
-	const legHeight = $derived(cfg.height - cfg.frameTube.height - cfg.footAllowance);
-	const frameY = $derived(cfg.footAllowance + legHeight + cfg.frameTube.height / 2);
+	const legHeight = $derived(cfg.height - cfg.frameTube.height);
+	const frameY = $derived(cfg.feet.height + legHeight + cfg.frameTube.height / 2);
 
 	const fw = $derived(cfg.frameTube.width);
 	const fh = $derived(cfg.frameTube.height);
-	const legW = $derived(cfg.legTube.width);
-	const legH = $derived(cfg.legTube.height);
+	const legW = $derived(legDims.legW);
+	const legH = $derived(legDims.legH);
 
 	// Vertical leg positioning (same as corner legs)
-	const yCenter = $derived(cfg.footAllowance + legHeight / 2);
+	const yCenter = $derived(cfg.feet.height + legHeight / 2);
 	const halfDepth = $derived(cfg.depth / 2 - legH / 2);
 
 	// Cross members run along Z (depth), same length as short rails
@@ -34,9 +35,9 @@
 
 {#if count > 0}
 	{#each positions() as x}
-		<TubeMember size={[fw, fh, crossLength]} position={[x, frameY, 0]} color="#a0b0c0" />
+		<TubeMember size={[fw, fh, crossLength]} position={[x, frameY, 0]} color="#a0b0c0" stockType={cfg.frameTube.stockType} />
 		<!-- Vertical legs under each center support -->
-		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, halfDepth]} color="#7a8a9a" />
-		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, -halfDepth]} color="#7a8a9a" />
+		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, halfDepth]} color="#7a8a9a" stockType={cfg.legTube.stockType} />
+		<TubeMember size={[legW, legHeight, legH]} position={[x, yCenter, -halfDepth]} color="#7a8a9a" stockType={cfg.legTube.stockType} />
 	{/each}
 {/if}

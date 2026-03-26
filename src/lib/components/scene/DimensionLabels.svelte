@@ -22,7 +22,7 @@
 	// Depth label: right edge midpoint, below table
 	const depthPos = $derived([halfWidth + 4, -2, 0] as [number, number, number]);
 	// Height label: right-front leg, beside it
-	const heightPos = $derived([halfWidth + 4, cfg.height / 2, halfDepth + 4] as [number, number, number]);
+	const heightPos = $derived([halfWidth + 4, cfg.feet.height + cfg.height / 2, halfDepth + 4] as [number, number, number]);
 </script>
 
 <HTML position={widthPos} center pointerEvents="none">

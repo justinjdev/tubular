@@ -1,4 +1,5 @@
 import type { TableConfig, Side, TubeProfile } from '$lib/stores/table.svelte';
+import { resolvedLegDimensions } from '$lib/stores/table.svelte';
 import type { StockType } from '$lib/data/tubing-presets';
 
 export interface CutListItem {
@@ -17,12 +18,16 @@ function stockLabel(p: TubeProfile): string {
 	if (p.stockType === 'flat-bar') {
 		return `${p.width}" \u00d7 ${p.height}" flat`;
 	}
+	if (p.stockType === 'round') {
+		return `${p.width}" OD (${p.thickness}")`;
+	}
 	return `${p.width}" \u00d7 ${p.height}" (${p.thickness}")`;
 }
 
 export function computeCutList(config: TableConfig): CutListItem[] {
 	const items: CutListItem[] = [];
 	const { legTube, frameTube, braceTube } = config;
+	const { legW, legH } = resolvedLegDimensions(config);
 
 	// Legs: qty 4, length = table height - frame tube height
 	items.push({
@@ -33,7 +38,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: legTube.width,
 		height: legTube.height,
 		thickness: legTube.thickness,
-		length: config.height - frameTube.height - config.footAllowance,
+		length: config.height - frameTube.height,
 		quantity: 4
 	});
 
@@ -59,7 +64,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
-		length: config.depth - legTube.width * 2,
+		length: config.depth - legW * 2,
 		quantity: 2
 	});
 
@@ -73,8 +78,8 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		// front/back span along width (X), minus leg width on each end
 		// left/right span along depth (Z), minus leg height on each end
 		const span = isLongSide
-			? config.width - legTube.width * 2
-			: config.depth - legTube.height * 2;
+			? config.width - legW * 2
+			: config.depth - legH * 2;
 
 		const sideLabel = side.charAt(0).toUpperCase() + side.slice(1);
 
@@ -116,7 +121,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: frameTube.width,
 			height: frameTube.height,
 			thickness: frameTube.thickness,
-			length: config.depth - legTube.width * 2,
+			length: config.depth - legW * 2,
 			quantity: config.centerSupports
 		});
 		items.push({
@@ -127,7 +132,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: legTube.width,
 			height: legTube.height,
 			thickness: legTube.thickness,
-			length: config.height - frameTube.height - config.footAllowance,
+			length: config.height - frameTube.height,
 			quantity: config.centerSupports * 2
 		});
 	}
@@ -159,7 +164,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
-			length: config.width - legTube.width * 2,
+			length: config.width - legW * 2,
 			quantity: 2
 		});
 		items.push({
@@ -170,7 +175,7 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 			width: braceTube.width,
 			height: braceTube.height,
 			thickness: braceTube.thickness,
-			length: config.depth - legTube.height * 2,
+			length: config.depth - legH * 2,
 			quantity: 2
 		});
 	}

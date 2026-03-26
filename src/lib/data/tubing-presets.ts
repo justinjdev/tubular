@@ -1,4 +1,4 @@
-export type StockType = 'tube' | 'flat-bar';
+export type StockType = 'tube' | 'flat-bar' | 'round';
 
 export interface StockPreset {
 	label: string;
@@ -45,4 +45,15 @@ export const FLAT_BAR_PRESETS: StockPreset[] = [
 	{ label: '3" × 1/4" flat', type: 'flat-bar', width: 3.0, height: 0.25, thickness: 0.25 },
 ];
 
-export const ALL_PRESETS: StockPreset[] = [...TUBE_PRESETS, ...FLAT_BAR_PRESETS];
+export const ROUND_PRESETS: StockPreset[] = [
+	{ label: '1" OD — 16ga', type: 'round', width: 1.0, height: 1.0, thickness: 0.065, gauge: 16 },
+	{ label: '1" OD — 14ga', type: 'round', width: 1.0, height: 1.0, thickness: 0.075, gauge: 14 },
+	{ label: '1.25" OD — 14ga', type: 'round', width: 1.25, height: 1.25, thickness: 0.075, gauge: 14 },
+	{ label: '1.5" OD — 14ga', type: 'round', width: 1.5, height: 1.5, thickness: 0.075, gauge: 14 },
+	{ label: '1.5" OD — 11ga', type: 'round', width: 1.5, height: 1.5, thickness: 0.12, gauge: 11 },
+	{ label: '1.75" OD — 14ga', type: 'round', width: 1.75, height: 1.75, thickness: 0.075, gauge: 14 },
+	{ label: '2" OD — 14ga', type: 'round', width: 2.0, height: 2.0, thickness: 0.075, gauge: 14 },
+	{ label: '2" OD — 11ga', type: 'round', width: 2.0, height: 2.0, thickness: 0.12, gauge: 11 },
+];
+
+export const ALL_PRESETS: StockPreset[] = [...TUBE_PRESETS, ...FLAT_BAR_PRESETS, ...ROUND_PRESETS];
