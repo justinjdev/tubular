@@ -40,7 +40,12 @@
 				<tbody>
 					{#each groupItems as item}
 						<tr class="border-b border-neutral-700/50 text-neutral-300">
-							<td class="py-1.5">{item.description}</td>
+							<td class="py-1.5">
+								{item.description}
+								{#if item.jointNote}
+									<span class="ml-1 text-[10px] text-amber-500/70">{item.jointNote}</span>
+								{/if}
+							</td>
 							<td class="py-1.5 text-neutral-400">{item.tubeLabel}</td>
 							<td class="py-1.5 text-right font-mono">{fmtLength(item.length)}</td>
 							<td class="py-1.5 text-right font-mono">{item.quantity}</td>

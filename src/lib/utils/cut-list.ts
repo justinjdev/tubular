@@ -14,6 +14,8 @@ export interface CutListItem {
 	quantity: number;
 	/** Override density in lb/ft^3 (defaults to steel: 490) */
 	density?: number;
+	/** Note about the joint type, e.g. "coped ends" or "miter 45°" */
+	jointNote?: string;
 }
 
 function stockLabel(p: TubeProfile): string {
@@ -30,8 +32,15 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 	const items: CutListItem[] = [];
 	const { legTube, frameTube, braceTube } = config;
 	const { legW, legH } = resolvedLegDimensions(config);
+	const joints = config.weldJoints ?? { legToFrame: 'butt', braceToLeg: 'butt', frameCorners: 'butt' };
 
 	// Legs: qty 4, length = table height - frame tube height
+	let legLength = config.height - frameTube.height;
+	let legJointNote: string | undefined;
+	if (joints.legToFrame === 'cope') {
+		legLength += frameTube.height / 2;
+		legJointNote = 'coped top end';
+	}
 	items.push({
 		group: 'Legs',
 		description: 'Leg',
@@ -40,11 +49,34 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: legTube.width,
 		height: legTube.height,
 		thickness: legTube.thickness,
-		length: config.height - frameTube.height,
-		quantity: 4
+		length: legLength,
+		quantity: 4,
+		jointNote: legJointNote
 	});
 
-	// Top Frame - Long Rail: qty 2, full table width (X-axis)
+	// Top Frame - Long Rail and Short Rail
+	let longRailLength: number;
+	let shortRailLength: number;
+	let longJointNote: string | undefined;
+	let shortJointNote: string | undefined;
+
+	if (joints.frameCorners === 'miter') {
+		// Both rails shortened — they meet at 45° miters at each corner
+		longRailLength = config.width - frameTube.width;
+		shortRailLength = config.depth - frameTube.width;
+		longJointNote = 'miter 45° both ends';
+		shortJointNote = 'miter 45° both ends';
+	} else if (joints.frameCorners === 'cope') {
+		// Long rails stay full length, short rails coped ends wrap around long rails
+		longRailLength = config.width;
+		shortRailLength = config.depth - legW * 2 + frameTube.width;
+		shortJointNote = 'coped ends';
+	} else {
+		// Butt (default) — short rails butt into long rails inside legs
+		longRailLength = config.width;
+		shortRailLength = config.depth - legW * 2;
+	}
+
 	items.push({
 		group: 'Top Frame',
 		description: 'Long Rail',
@@ -53,11 +85,11 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
-		length: config.width,
-		quantity: 2
+		length: longRailLength,
+		quantity: 2,
+		jointNote: longJointNote
 	});
 
-	// Top Frame - Short Rail: qty 2, depth minus two leg widths (butt joints)
 	items.push({
 		group: 'Top Frame',
 		description: 'Short Rail',
@@ -66,8 +98,9 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 		width: frameTube.width,
 		height: frameTube.height,
 		thickness: frameTube.thickness,
-		length: config.depth - legW * 2,
-		quantity: 2
+		length: shortRailLength,
+		quantity: 2,
+		jointNote: shortJointNote
 	});
 
 	// Bracing per side
@@ -85,6 +118,16 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 
 		const sideLabel = side.charAt(0).toUpperCase() + side.slice(1);
 
+		let braceJointNote: string | undefined;
+		let braceAdjust = 0;
+		if (joints.braceToLeg === 'cope') {
+			braceAdjust = legTube.width;
+			braceJointNote = 'coped ends';
+		} else if (joints.braceToLeg === 'fish-mouth') {
+			braceAdjust = legTube.width;
+			braceJointNote = 'fish-mouth ends';
+		}
+
 		if (braceType === 'h-brace') {
 			items.push({
 				group: 'Bracing',
@@ -94,8 +137,9 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 				width: braceTube.width,
 				height: braceTube.height,
 				thickness: braceTube.thickness,
-				length: span,
-				quantity: 1
+				length: span + braceAdjust,
+				quantity: 1,
+				jointNote: braceJointNote
 			});
 		} else if (braceType === 'x-brace') {
 			const diagonalLength = Math.sqrt(span * span + config.braceSpan * config.braceSpan);
@@ -107,8 +151,9 @@ export function computeCutList(config: TableConfig): CutListItem[] {
 				width: braceTube.width,
 				height: braceTube.height,
 				thickness: braceTube.thickness,
-				length: diagonalLength,
-				quantity: 2
+				length: diagonalLength + braceAdjust,
+				quantity: 2,
+				jointNote: braceJointNote
 			});
 		}
 	}

@@ -7,22 +7,22 @@
     "width": {
       "type": "number",
       "description": "Table width (X-axis, left-to-right) in inches",
-      "minimum": 12,
-      "maximum": 120,
+      "minimum": 18,
+      "maximum": 192,
       "default": 60
     },
     "depth": {
       "type": "number",
       "description": "Table depth (Z-axis, front-to-back) in inches",
-      "minimum": 12,
-      "maximum": 120,
+      "minimum": 18,
+      "maximum": 192,
       "default": 30
     },
     "height": {
       "type": "number",
       "description": "Table height (Y-axis) in inches",
-      "minimum": 12,
-      "maximum": 120,
+      "minimum": 18,
+      "maximum": 192,
       "default": 30
     },
     "legTube": {
@@ -39,6 +39,12 @@
       "$ref": "#/$defs/TubeProfile",
       "description": "Tube or flat-bar profile for bracing members (H-brace or X-brace)",
       "default": { "width": 1, "height": 1, "thickness": 0.075, "stockType": "tube" }
+    },
+    "legOrientation": {
+      "type": "string",
+      "description": "Orientation of rectangular leg tubes. 'auto' aligns width to the wider table dimension.",
+      "enum": ["auto", "width-front", "width-side"],
+      "default": "auto"
     },
     "bracing": {
       "type": "object",
@@ -105,9 +111,16 @@
       "required": ["front", "back", "left", "right"],
       "default": { "front": false, "back": false, "left": false, "right": false }
     },
-    "gussetSize": {
+    "gussetWidth": {
       "type": "number",
-      "description": "Leg length of the right-triangle gusset plate in inches",
+      "description": "Horizontal leg of the right-triangle gusset plate in inches",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 3
+    },
+    "gussetHeight": {
+      "type": "number",
+      "description": "Vertical leg of the right-triangle gusset plate in inches",
       "minimum": 1,
       "maximum": 12,
       "default": 3
@@ -251,6 +264,26 @@
       "description": "Add a lower shelf frame (horizontal rails between legs at brace height)",
       "default": false
     },
+    "weldJoints": {
+      "type": "object",
+      "description": "Weld joint type for different connection categories. Joint type affects cut lengths.",
+      "properties": {
+        "legToFrame": {
+          "$ref": "#/$defs/WeldJoint",
+          "description": "How legs connect to frame rails"
+        },
+        "braceToLeg": {
+          "$ref": "#/$defs/WeldJoint",
+          "description": "How bracing connects to legs"
+        },
+        "frameCorners": {
+          "$ref": "#/$defs/WeldJoint",
+          "description": "How frame rails meet at corners"
+        }
+      },
+      "required": ["legToFrame", "braceToLeg", "frameCorners"],
+      "default": { "legToFrame": "butt", "braceToLeg": "butt", "frameCorners": "butt" }
+    },
     "metric": {
       "type": "boolean",
       "description": "Display dimensions in metric (mm/kg). All values in the config are still stored in inches regardless of this toggle.",
@@ -276,8 +309,8 @@
         },
         "stockType": {
           "type": "string",
-          "enum": ["tube", "flat-bar"],
-          "description": "'tube' for hollow square/rectangular tube, 'flat-bar' for solid flat stock"
+          "enum": ["tube", "flat-bar", "round"],
+          "description": "'tube' for hollow square/rectangular tube, 'flat-bar' for solid flat stock, 'round' for round tube"
         }
       },
       "required": ["width", "height", "thickness", "stockType"]
@@ -286,6 +319,11 @@
       "type": "string",
       "enum": ["none", "h-brace", "x-brace"],
       "description": "Bracing type: none, horizontal H-brace, or diagonal X-brace"
+    },
+    "WeldJoint": {
+      "type": "string",
+      "enum": ["butt", "cope", "miter", "fish-mouth"],
+      "description": "Weld joint type: butt (square-cut), cope (profiled to wrap mating tube), miter (45° angle), fish-mouth (saddle for round tube)"
     }
   },
   "additionalProperties": false

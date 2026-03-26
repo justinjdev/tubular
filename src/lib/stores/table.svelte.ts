@@ -9,6 +9,14 @@ export type SurfaceFinish = 'raw' | 'paint' | 'powder-coat' | 'galvanized' | 'oi
 export type MaterialGrade = 'A500' | 'A513' | 'A36' | 'DOM';
 export type TabletopMaterial = 'none' | 'steel-plate' | 'diamond-plate' | 'expanded-metal' | 'wood-butcher-block' | 'plywood' | 'mdf';
 
+export type WeldJoint = 'butt' | 'cope' | 'miter' | 'fish-mouth';
+
+export interface WeldJointConfig {
+	legToFrame: WeldJoint;
+	braceToLeg: WeldJoint;
+	frameCorners: WeldJoint;
+}
+
 export interface TabletopConfig {
 	material: TabletopMaterial;
 	thickness: number; // inches
@@ -70,6 +78,7 @@ export interface TableConfig {
 	materialGrade: MaterialGrade;
 	surfaceFinish: SurfaceFinish;
 	shelfFrame: boolean;
+	weldJoints: WeldJointConfig;
 	metric: boolean;
 }
 
@@ -109,6 +118,7 @@ export const DEFAULT_CONFIG: TableConfig = {
 	materialGrade: 'A500',
 	surfaceFinish: 'raw',
 	shelfFrame: false,
+	weldJoints: { legToFrame: 'butt', braceToLeg: 'butt', frameCorners: 'butt' },
 	metric: false
 };
 
@@ -320,6 +330,10 @@ function createTableStore() {
 
 		toggleShelfFrame() {
 			set({ shelfFrame: !config.shelfFrame });
+		},
+
+		updateWeldJoint(connection: keyof WeldJointConfig, joint: WeldJoint) {
+			set({ weldJoints: { ...config.weldJoints, [connection]: joint } });
 		},
 
 		updateTabletopMaterial(material: TabletopMaterial) {

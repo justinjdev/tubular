@@ -6,10 +6,12 @@
 	import DimensionControls from '$lib/components/controls/DimensionControls.svelte';
 	import TubingControls from '$lib/components/controls/TubingControls.svelte';
 	import BracingControls from '$lib/components/controls/BracingControls.svelte';
+	import WeldJointControls from '$lib/components/controls/WeldJointControls.svelte';
 	import StructureControls from '$lib/components/controls/StructureControls.svelte';
 	import TabletopControls from '$lib/components/controls/TabletopControls.svelte';
 	import DrawerControls from '$lib/components/controls/DrawerControls.svelte';
 	import CutList from '$lib/components/output/CutList.svelte';
+	import AssemblySequence from '$lib/components/output/AssemblySequence.svelte';
 	import DrawerList from '$lib/components/output/DrawerList.svelte';
 	import MaterialsSummary from '$lib/components/output/MaterialsSummary.svelte';
 	import StockNesting from '$lib/components/output/StockNesting.svelte';
@@ -130,7 +132,7 @@
 	let captureScene: (() => string | null) | undefined = $state();
 
 	// Accordion state — only one section open at a time
-	type Section = 'dims' | 'tabletop' | 'materials' | 'bracing' | 'structure' | 'drawers';
+	type Section = 'dims' | 'tabletop' | 'materials' | 'bracing' | 'joints' | 'structure' | 'drawers';
 	let openSection = $state<Section>('dims');
 
 	function toggle(s: Section) {
@@ -159,6 +161,16 @@
 			.filter((s) => config.bracing[s] !== 'none')
 			.map((s) => `${s[0].toUpperCase()}:${config.bracing[s] === 'h-brace' ? 'H' : 'X'}`);
 		return sides.length ? sides.join(' ') : 'none';
+	});
+	const jointsSummary = $derived.by(() => {
+		const joints = config.weldJoints ?? { legToFrame: 'butt', braceToLeg: 'butt', frameCorners: 'butt' };
+		const nonButt = Object.entries(joints)
+			.filter(([, v]) => v !== 'butt')
+			.map(([k, v]) => {
+				const labels: Record<string, string> = { legToFrame: 'leg', braceToLeg: 'brace', frameCorners: 'corners' };
+				return `${labels[k]}:${v}`;
+			});
+		return nonButt.length ? nonButt.join(', ') : 'all butt';
 	});
 	const structSummary = $derived.by(() => {
 		const parts: string[] = [];
@@ -387,6 +399,15 @@
 				</AccordionSection>
 
 				<AccordionSection
+					title="Joints"
+					summary={jointsSummary}
+					open={openSection === 'joints'}
+					onToggle={() => toggle('joints')}
+				>
+					<WeldJointControls />
+				</AccordionSection>
+
+				<AccordionSection
 					title="Structure"
 					summary={structSummary}
 					open={openSection === 'structure'}
@@ -406,6 +427,7 @@
 			{:else}
 				<div class="flex flex-col gap-5 p-5">
 					<CutList />
+					<AssemblySequence />
 					<DrawerList />
 					<MaterialsSummary />
 					<StockNesting />
