@@ -99,6 +99,10 @@ function loadConfig(): TableConfig {
 			merged.width = saved.length;
 			merged.depth = saved.width;
 		}
+		// Migrate 1/8" drawer bottom to 1/4" minimum
+		if (merged.drawerBottomThickness < 0.1875) {
+			merged.drawerBottomThickness = 0.25;
+		}
 		// Migrate old gusset formats to per-face
 		if (typeof merged.gussets === 'boolean') {
 			const all = merged.gussets;
@@ -142,7 +146,7 @@ function createTableStore() {
 		},
 
 		updateDimension(key: 'width' | 'depth' | 'height', value: number) {
-			const clamped = Math.max(12, Math.min(120, value));
+			const clamped = Math.max(18, Math.min(192, value));
 			set({ [key]: clamped });
 			if (key === 'height') {
 				const maxSpan = clamped - config.braceBottom - 1;

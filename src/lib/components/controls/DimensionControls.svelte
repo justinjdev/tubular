@@ -19,7 +19,7 @@
 
 	function parseInput(raw: string): number {
 		const v = config.metric ? parseFloat(raw) / 25.4 : parseFloat(raw);
-		return isNaN(v) ? 12 : v;
+		return isNaN(v) ? 18 : v;
 	}
 
 	function handleChange(key: 'width' | 'depth' | 'height', e: Event) {
@@ -59,8 +59,8 @@
 			<input
 				type="range"
 				class="accent-amber-500"
-				min={12}
-				max={120}
+				min={18}
+				max={192}
 				step={0.5}
 				value={config[dim.key]}
 				oninput={(e) => handleRange(dim.key, e)}

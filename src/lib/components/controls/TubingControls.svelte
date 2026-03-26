@@ -121,6 +121,13 @@
 						</button>
 					</div>
 
+					{#if tube.stockType === 'flat-bar' && (sec.key === 'legTube' || sec.key === 'frameTube')}
+						<div class="flex items-start gap-2 rounded bg-amber-900/40 px-2.5 py-2 text-xs text-amber-300 ring-1 ring-amber-700/50">
+							<span class="mt-px shrink-0">&#9888;</span>
+							<span>Flat bar is not suitable for {sec.key === 'legTube' ? 'legs' : 'frame members'} — use square or rectangular tube for structural integrity.</span>
+						</div>
+					{/if}
+
 					<!-- Preset dropdown -->
 					<div class="flex flex-col gap-1">
 						<label class="text-xs text-neutral-500" for="preset-{sec.key}">Preset</label>

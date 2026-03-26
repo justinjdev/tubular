@@ -103,7 +103,6 @@
 				value={config.drawerBottomThickness}
 				onchange={(e) => tableStore.updateDrawerBottomThickness(parseFloat((e.target as HTMLSelectElement).value))}
 			>
-				<option value={0.125}>1/8"</option>
 				<option value={0.1875}>3/16"</option>
 				<option value={0.25}>1/4"</option>
 				<option value={0.375}>3/8"</option>

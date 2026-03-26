@@ -95,10 +95,10 @@
 		</span>
 	</div>
 
-	<!-- Brace bottom (off floor) -->
+	<!-- Brace offset from floor -->
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<label for="brace-bottom" class="text-xs text-neutral-500">Brace Bottom</label>
+			<label for="brace-bottom" class="text-xs text-neutral-500">Offset from floor</label>
 			<span class="text-xs text-neutral-400">
 				{inToDisplay(config.braceBottom, config.metric)} {lengthUnit(config.metric)}
 				{#if !config.metric}
@@ -118,10 +118,10 @@
 		/>
 	</div>
 
-	<!-- Brace height (span from bottom) -->
+	<!-- Brace span (vertical extent) -->
 	<div class="flex flex-col gap-1.5">
 		<div class="flex items-center justify-between">
-			<label for="brace-span" class="text-xs text-neutral-500">Brace Height</label>
+			<label for="brace-span" class="text-xs text-neutral-500">Brace span</label>
 			<span class="text-xs text-neutral-400">
 				{inToDisplay(config.braceSpan, config.metric)} {lengthUnit(config.metric)}
 				{#if !config.metric}
